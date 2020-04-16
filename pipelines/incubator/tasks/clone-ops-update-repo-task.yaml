@@ -1,0 +1,114 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Task
+metadata:
+  name: clone-ops-update-repo-task
+spec:
+  inputs:
+    resources:
+      - name: source
+        type: git
+      - name: image
+        type: image
+    params:
+      - name: js-image
+        type: string
+        default: docker.io/node:12-stretch
+      - name: tools-image
+        type: string
+        default: docker.io/csantanapr/helm-kubectl
+  steps:
+    - name: clone-update-repo
+      image: $(inputs.params.js-image)
+      workingdir: $(inputs.resources.source.path)
+      envFrom:
+        - configMapRef:
+            name: argocd-config
+            optional: true
+
+      command: ["/bin/bash"]
+      args:
+        - -c
+        - |
+          set -e
+
+          # Export project name
+          echo "this is my first run!"
+          # echo "applicationImage: bbb" > randomtext.txt
+
+          # clone repo
+          git clone https://github.com/oiricaud/bluecompute-appsody-ops.git
+          cd bluecompute-appsody-ops
+
+          # update value for key applicationImage
+          sed -i "/applicationImage: /c\applicationImage: $(inputs.resources.image.url)" ./app-deploy.yaml
+
+          # verify the value for key applicationImage got updated
+          cat ./app-deploy.yaml | grep "applicationImage"
+
+          # push changes to git
+          # This email is not used and it not valid, you can ignore but git requires it
+          git config --global user.email "oiricaud@miners.utep.edu"
+          git config --global user.name "oiricaud"
+
+          echo $(inputs.resources.source.path)
+          git add .
+          git commit -m "updated app-deploy.yaml from clone-ops-update-repo-task"
+          git push
+
+#    - name: gitops
+#      image: $(inputs.params.tools-image)
+#      workingdir: $(inputs.resources.source.path)
+#      envFrom:
+#        - configMapRef:
+#            name: argocd-config
+#            optional: true
+#      command: ["/bin/bash"]
+#      args:
+#        - -c
+#        - |
+#          set -e
+#          . ./env-config
+#          if [[ -z "${GITOPS_CD_URL}" ]]; then
+#              echo "Skipping GITOPS step as GITOPS_CD_URL is not installed or configured"
+#              exit 0
+#          fi
+#          if [[ -z "${GITOPS_CD_BRANCH}" ]]; then
+#              GITOPS_CD_BRANCH="master"
+#          fi
+#          export CHART=$(find . -name Chart\*)
+#          echo $CHART
+#          export CHART_NAME=$(cat $CHART | awk '/name:/ {print $2}')
+#          echo $CHART_NAME
+#          IMAGE_URL=$(inputs.resources.image.url)
+#          REGISTRY_URL=$(echo $IMAGE_URL | awk -F / '{print $1}')
+#          REGISTRY_NAMESPACE=$(echo $IMAGE_URL | awk -F / '{print $2}')
+#          HASTAG=$(echo $IMAGE_URL | awk -F / '{print $3}' | awk -F : '{print NF-1}')
+#          if [ "$HASTAG" = "1"  ]; then
+#              IMAGE_VERSION=$(echo $IMAGE_URL | awk -F / '{print $3}' | awk -F : '{print $2}')
+#          else
+#              IMAGE_VERSION=latest
+#          fi
+#          echo $REGISTRY_URL
+#          echo $REGISTRY_NAMESPACE
+#          echo $IMAGE_VERSION
+#          IMAGE_BUILD_VERSION="${APP_VERSION}-${IMAGE_VERSION}"
+#          # This email is not used and it not valid, you can ignore but git requires it
+#          git config --global user.email "jenkins@ibmcloud.com"
+#          git config --global user.name "Jenkins Pipeline"
+#          git clone -b ${GITOPS_CD_BRANCH} ${GITOPS_CD_URL} gitops_cd
+#          cd gitops_cd
+#          echo "Requirements before update"
+#          cat "./${IMAGE_NAME}/requirements.yaml"
+#          # Read the helm repo
+#          HELM_REPO=$(yq r ./${IMAGE_NAME}/requirements.yaml 'dependencies[0].repository')
+#          # Write the updated requirements.yaml
+#          echo "dependencies:" > ./requirements.yaml.tmp
+#          echo "  - name: ${CHART_NAME}" >> ./requirements.yaml.tmp
+#          echo "    version: ${IMAGE_BUILD_VERSION}" >> ./requirements.yaml.tmp
+#          echo "    repository: ${HELM_REPO}" >> ./requirements.yaml.tmp
+#          cp ./requirements.yaml.tmp "./${IMAGE_NAME}/requirements.yaml"
+#          echo "Requirements after update"
+#          cat "./${IMAGE_NAME}/requirements.yaml"
+#          git add -u
+#          git commit -m "Updates ${IMAGE_NAME} to ${IMAGE_BUILD_VERSION}"
+#          git push

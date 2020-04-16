@@ -1,0 +1,13 @@
+contents:
+- file: tasks/igc-nodejs-test.yaml
+  sha256: e9c0ea05eaf094d4286f4da1d45327e172609cdc1ee4c29e546d57210ad03baf
+- file: tasks/clone-ops-update-repo-task.yaml
+  sha256: 1407ba0a7dfe3ae4effba721e8745dd5e23f89b06c323e022e5bc839aa2b3ea6
+- file: nodejs-mcm-pl.yaml
+  sha256: ef3c06dfe83bcb0fb0a173acc2cb0d7c1eac2e32fe55fb34553e916f24f0eee2
+- file: templates/nodejs-mcm-pl-template.yaml
+  sha256: 54bc2ab21a1e0f064058c0d749619c0f9d92faf38a194200310d0767650b28ad
+- file: bindings/nodejs-mcm-pl-push-binding.yaml
+  sha256: 08dfcff61992fc75e0cc1ed236245fb5fd3d1831aaadc7e5d6834d5cc1887788
+- file: bindings/nodejs-mcm-pl-pullrequest-binding.yaml
+  sha256: 613d54c4f27dc520bcd25bd43b3e854d164452499f78d0cecc6d7c21489dbcd7
