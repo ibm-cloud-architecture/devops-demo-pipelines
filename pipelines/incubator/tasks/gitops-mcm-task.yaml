@@ -1,0 +1,154 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Task
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"tekton.dev/v1alpha1","kind":"Task","metadata":{"annotations":{},"name":"gitops-mcm-task","namespace":"kabanero","ownerReferences":[{"apiVersion":"kabanero.io/v1alpha2","controller":false,"kind":"Stack","name":"java-microprofile","uid":"6cc6e79b-a3cb-4a47-a3ef-7fc45d8efbd8"},{"apiVersion":"kabanero.io/v1alpha2","controller":false,"kind":"Stack","name":"java-openliberty","uid":"6151225d-a5c0-4dce-b852-fc858d503769"},{"apiVersion":"kabanero.io/v1alpha2","controller":false,"kind":"Stack","name":"java-spring-boot2","uid":"b075c7c8-c794-4f0c-93aa-1cc14cdacc4a"},{"apiVersion":"kabanero.io/v1alpha2","controller":false,"kind":"Stack","name":"nodejs","uid":"b3a420f1-edb4-41cb-9836-eea155dc511d"},{"apiVersion":"kabanero.io/v1alpha2","controller":false,"kind":"Stack","name":"nodejs-express","uid":"325945be-3c6b-4418-8695-7f3aa7bf8b4c"},{"apiVersion":"kabanero.io/v1alpha2","controller":false,"kind":"Stack","name":"nodejs-loopback","uid":"706c1bac-4455-4a65-a5d5-18d04a4eea8f"},{"apiVersion":"kabanero.io/v1alpha2","controller":false,"kind":"Stack","name":"or-nodejs-express-stack","uid":"26ee83e7-af99-4573-a4e1-fffbc75e9662"}]},"spec":{"inputs":{"params":[{"default":"docker.io/node:12-stretch","name":"js-image","type":"string"},{"default":"docker.io/csantanapr/helm-kubectl","name":"tools-image","type":"string"}],"resources":[{"name":"source","type":"git"},{"name":"image","type":"image"}]},"steps":[{"args":["-c","set -e\n\n# Export project name\necho \"this is my first run!\"\n# echo \"applicationImage: bbb\" \u003e randomtext.txt\n\n# clone repo\ngit clone https://github.com/hollisc/bluecompute-web-ops-dev.git\ncd bluecompute-web-ops-dev\n\n# update value for key applicationImage\n#sed -i \"/image: /c\\image: $(inputs.resources.image.url)\" web-deployment.yaml\nsed -i \"/image: /c\\        image: $(inputs.resources.image.url)\" web-deployment.yaml\n\n# verify the value for key applicationImage got updated\ncat web-deployment.yaml | grep \"image\"\n\n# push changes to git\n# This email is not used and it not valid, you can ignore but git requires it\ngit config --global user.email \"hollisc@ca.ibm.com\"\ngit config --global user.name \"hollisc\"\n\necho $(inputs.resources.source.path)\ngit add .\ngit commit -m \"updated web-deployment.yaml\"\ngit push\n"],"command":["/bin/bash"],"envFrom":[{"configMapRef":{"name":"argocd-config","optional":true}}],"image":"$(inputs.params.js-image)","name":"clone-update-repo","resources":{},"workingDir":"$(inputs.resources.source.path)"}]}}
+  creationTimestamp: 2020-04-13T21:49:02Z
+  generation: 3
+  name: gitops-mcm-task
+  namespace: kabanero
+  ownerReferences:
+    - apiVersion: kabanero.io/v1alpha2
+      controller: false
+      kind: Stack
+      name: java-microprofile
+      uid: 6cc6e79b-a3cb-4a47-a3ef-7fc45d8efbd8
+    - apiVersion: kabanero.io/v1alpha2
+      controller: false
+      kind: Stack
+      name: java-openliberty
+      uid: 6151225d-a5c0-4dce-b852-fc858d503769
+    - apiVersion: kabanero.io/v1alpha2
+      controller: false
+      kind: Stack
+      name: java-spring-boot2
+      uid: b075c7c8-c794-4f0c-93aa-1cc14cdacc4a
+    - apiVersion: kabanero.io/v1alpha2
+      controller: false
+      kind: Stack
+      name: nodejs
+      uid: b3a420f1-edb4-41cb-9836-eea155dc511d
+    - apiVersion: kabanero.io/v1alpha2
+      controller: false
+      kind: Stack
+      name: nodejs-express
+      uid: 325945be-3c6b-4418-8695-7f3aa7bf8b4c
+    - apiVersion: kabanero.io/v1alpha2
+      controller: false
+      kind: Stack
+      name: nodejs-loopback
+      uid: 706c1bac-4455-4a65-a5d5-18d04a4eea8f
+    - apiVersion: kabanero.io/v1alpha2
+      controller: false
+      kind: Stack
+      name: or-nodejs-express-stack
+      uid: 26ee83e7-af99-4573-a4e1-fffbc75e9662
+  resourceVersion: "8475943"
+  selfLink: /apis/tekton.dev/v1alpha1/namespaces/kabanero/tasks/gitops-mcm-task
+  uid: 2aebe6b6-72c7-4bcc-b58f-f3e3cd71d21d
+spec:
+  inputs:
+    params:
+      - default: docker.io/node:12-stretch
+        name: js-image
+        type: string
+      - default: docker.io/csantanapr/helm-kubectl
+        name: tools-image
+        type: string
+      - default: http://web-qa.devops-gse-state-288036-0143c5dd31acd8e030a1d6e0ab1380e3-0000.tor01.containers.appdomain.cloud
+        name: ops-url
+        type: string
+      - default: _healthchecks
+        name: health-endpoint
+        type: string
+    resources:
+      - name: source
+        type: git
+      - name: image
+        type: image
+  steps:
+    - args:
+        - -c
+        - |
+          set -e
+
+          # Export project name
+          echo "this is my first run!"
+          # echo "applicationImage: bbb" > randomtext.txt
+
+          # clone repo
+          git clone https://github.com/oiricaud/bluecompute-appsody-ops.git
+          cd bluecompute-appsody-ops
+
+          # update value for key applicationImage
+          sed -i "/applicationImage: /c\applicationImage: $(inputs.resources.image.url)" ./app-deploy.yaml
+
+          # verify the value for key applicationImage got updated
+          cat ./app-deploy.yaml | grep "applicationImage"
+
+          # push changes to git
+          # This email is not used and it not valid, you can ignore but git requires it
+          git config --global user.email "oiricaud@miners.utep.edu"
+          git config --global user.name "oiricaud"
+
+          echo $(inputs.resources.source.path)
+          git add .
+          git commit -m "updated app-deploy.yaml from clone-ops-update-repo-task"
+          git push
+      command:
+        - /bin/bash
+      envFrom:
+        - configMapRef:
+            name: argocd-config
+            optional: true
+      image: $(inputs.params.js-image)
+      name: clone-update-repo
+      resources: {}
+      workingDir: $(inputs.resources.source.path)
+
+    - args:
+        - '-c'
+        - |
+          set -e
+
+          # route=http://web-qa.devops-gse-state-288036-0143c5dd31acd8e030a1d6e0ab1380e3-0000.tor01.containers.appdomain.cloud
+          echo $(inputs.params.ops-url)/$(inputs.params.health-endpoint)
+          curl $(inputs.params.ops-url)/$(inputs.params.health-endpoint) -v > health-endpoint.json
+
+          cat health-endpoint.json
+
+           # check if there are any failed key value pairs
+          did_health_status_failed=$(.["failed"] == [] ./health-endpoint.json)
+
+          if [ "$did_health_status_failed" = "true" ]; then
+             echo Health Status OK
+          else
+             echo ERROR: There was a problem in the health status, please check the health-endpoint.json file
+             exit 1
+          fi
+
+#
+#          # change to project qa
+#
+#          oc project qa
+#
+#          # get routes and create a json file
+#
+#          oc get routes -o json > routes.json
+#
+#          # look in the json file and get the web url
+#
+#          qa_route=$(jq '.items | .[0].spec.host' ./routes.json)
+#          temp=$(echo $qa_route | tr -d '"')
+#          echo $temp
+#          curl "http://${temp}/_healthchecks"
+#
+#
+
+      command:
+        - /bin/bash
+      image: $(inputs.params.js-image)
+      name: build
+      resources: {}
+      workingDir: $(inputs.resources.source.path)

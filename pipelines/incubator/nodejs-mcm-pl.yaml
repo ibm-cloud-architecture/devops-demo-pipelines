@@ -1,8 +1,51 @@
 apiVersion: tekton.dev/v1alpha1
 kind: Pipeline
 metadata:
+  annotations:
+    manifestival: new
+  creationTimestamp: 2020-04-13T16:57:40Z
+  generation: 2
   name: nodejs-mcm-pl
   namespace: kabanero
+  ownerReferences:
+    - apiVersion: kabanero.io/v1alpha2
+      controller: false
+      kind: Stack
+      name: java-microprofile
+      uid: 6cc6e79b-a3cb-4a47-a3ef-7fc45d8efbd8
+    - apiVersion: kabanero.io/v1alpha2
+      controller: false
+      kind: Stack
+      name: java-openliberty
+      uid: 6151225d-a5c0-4dce-b852-fc858d503769
+    - apiVersion: kabanero.io/v1alpha2
+      controller: false
+      kind: Stack
+      name: java-spring-boot2
+      uid: b075c7c8-c794-4f0c-93aa-1cc14cdacc4a
+    - apiVersion: kabanero.io/v1alpha2
+      controller: false
+      kind: Stack
+      name: nodejs
+      uid: b3a420f1-edb4-41cb-9836-eea155dc511d
+    - apiVersion: kabanero.io/v1alpha2
+      controller: false
+      kind: Stack
+      name: nodejs-express
+      uid: 325945be-3c6b-4418-8695-7f3aa7bf8b4c
+    - apiVersion: kabanero.io/v1alpha2
+      controller: false
+      kind: Stack
+      name: nodejs-loopback
+      uid: 706c1bac-4455-4a65-a5d5-18d04a4eea8f
+    - apiVersion: kabanero.io/v1alpha2
+      controller: false
+      kind: Stack
+      name: or-nodejs-express-stack
+      uid: 26ee83e7-af99-4573-a4e1-fffbc75e9662
+  resourceVersion: "6170090"
+  selfLink: /apis/tekton.dev/v1alpha1/namespaces/kabanero/pipelines/nodejs-mcm-pl
+  uid: 75d9af1a-5345-44f3-a3cc-2b7a9c7f9a48
 spec:
   params:
     - description: The event type
@@ -17,7 +60,7 @@ spec:
     - name: docker-image
       type: image
   tasks:
-    - name: test # build, test, publish-pact, verify-pact, sonar-scan
+    - name: test
       resources:
         inputs:
           - name: source
@@ -25,7 +68,7 @@ spec:
       taskRef:
         kind: Task
         name: igc-nodejs-test
-    - name: build-push-task # imagename-lowercase, build and pushes
+    - name: build-push-task
       resources:
         inputs:
           - name: git-source
@@ -40,7 +83,7 @@ spec:
       taskRef:
         kind: Task
         name: nodejs-build-push-task
-    - name: image-scan-task # lowercase image, mount image, scan image
+    - name: image-scan-task
       resources:
         inputs:
           - name: git-source
@@ -52,7 +95,7 @@ spec:
       taskRef:
         kind: Task
         name: nodejs-image-scan-task
-    - name: gitops # clone ops repo and update repo app-deploy.yaml file
+    - name: gitops
       resources:
         inputs:
           - name: source
@@ -62,4 +105,5 @@ spec:
       runAfter:
         - image-scan-task
       taskRef:
-        name: clone-ops-update-repo-task
+        kind: Task
+        name: gitops-mcm-task
