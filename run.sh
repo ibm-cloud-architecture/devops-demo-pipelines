@@ -117,25 +117,34 @@ update_kabanero_cr() {
   # print the new results
   oc get kabaneros kabanero -o yaml
 }
+
 add_pipeline_kabanero_cr() {
   oc project kabanero
-  oc get kabaneros kabanero -o json > ./json/kabanero.json
+
+  oc get kabaneros kabanero -o json > ./json/temp.json
+
   read -p "Enter label for pipeline [i.e mcm-pipelines] " name_of_pipeline
   read -p "Where are the pipelines being hosted? [i.e www.github.com/org/repo-pipelines/kabanero.tar.gz] " host_url
   read -p "Enter name of tar file " tar_file_name
+
   wget $host_url
+
   get_sha=$(shasum -a 256 ./$tar_file_name | grep -Eo '^[^ ]+' )
+
   echo $get_sha
   # add double quotes to the sha256
   new_sha=\"${get_sha}\"
   generate_sha=
   jq '.https.url="'$host_url'" | .id="'$name_of_pipeline'" | .sha256="'$get_sha'"'  ./json/add_pipeline_template.json > ./json/add_pipeline_modified_template.json
+
   cat ./json/add_pipeline_modified_template.json
+
   rm ./default-kabanero-pipelines.tar.gz
+
   result=$(jq '.spec.stacks.pipelines[1]='"$(cat ./json/add_pipeline_modified_template.json)"'' ./json/kabanero.json)
+
   echo $result | json_pp > ./json/kabanero-2.json
-  cd ./json
-  oc apply -f kabanero-2.json
+
 }
 printf "===========================================================================\n\n"
 printf "======================== AUTOMATOR SCRIPT =================================\n\n"
