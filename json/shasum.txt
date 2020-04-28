@@ -1,0 +1,1 @@
+c2a84ea8409445b49476d129dda2a5eaadd1ab2e90394e4ada25aa010b5e2784  ./ci/assets/default-kabanero-pipelines.tar.gz
