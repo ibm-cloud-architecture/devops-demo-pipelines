@@ -1,9 +1,12 @@
 #!/usr/bin/env bash
-
+#https://stackoverflow.com/questions/19482123/extract-part-of-a-string-using-bash-cut-split
 # define global variables
 CONFIG=$@
 BRANCH=$(git rev-parse --abbrev-ref HEAD)
-REPO_FULL_NAME=$(git config --get remote.origin.url | sed 's/.*:\/\/github.com\///;s/.git$//')
+REPO_FULL_NAME_HTPPS=$(git config --get remote.origin.url | sed 's/.*:\/\/github.com\///;s/.git$//')
+full_git=$(git config --get remote.origin.url)
+stripped_git=${full_git##*:}
+REPO_FULL_NAME_GIT=${stripped_git%.*}
 TOKEN=$(git config --global github.token)
 GH_API="https://api.github.com"
 GH_REPO="$GH_API/repos/$REPO_FULL_NAME"
@@ -49,7 +52,19 @@ create_release() {
   read -p "Enter Release Version i.e v1.0 : " version
   read -p "Enter description of release " text
   echo "Create release $version for repo: $REPO_FULL_NAME branch: $BRANCH"
-  curl --data "$(get_release_info)" "https://api.github.com/repos/$REPO_FULL_NAME/releases?access_token=$TOKEN"
+  echo $REPO_FULL_NAME_HTTPS
+  echo $REPO_FULL_NAME_GIT
+  echo "TOKEN: " $TOKEN
+
+  if (( $(curl --write-out "%{http_code}" --data `$(get_release_info)` "https://api.github.com/repos/$REPO_FULL_NAME_HTTPS/releases?access_token=$TOKEN") != 200 ))
+  then
+    continue
+  else 
+    echo "HERE I AM"
+    curl --data "$(get_release_info)" "https://api.github.com/repos/$REPO_FULL_NAME_GIT/releases?access_token=$TOKEN"
+  fi
+
+  # curl --data "$(get_release_info)" "https://api.github.com/repos/$REPO_FULL_NAME/releases?access_token=$TOKEN"
 }
 
 # method is responsible for uploading an asset to a release
