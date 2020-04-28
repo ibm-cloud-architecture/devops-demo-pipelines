@@ -7,7 +7,7 @@ REPO_FULL_NAME=$(git config --get remote.origin.url | sed 's/.*:\/\/github.com\/
 TOKEN=$(git config --global github.token)
 GH_API="https://api.github.com"
 GH_REPO="$GH_API/repos/$REPO_FULL_NAME"
-GH_TAGS="$GH_REPO/releases/tags/$tag"
+
 AUTH="Authorization: token $TOKEN"
 
 # commits latest changes and pushes them to the git repo
@@ -55,7 +55,7 @@ create_release() {
 # method is responsible for uploading an asset to a release
 upload_asset() {
   read -p "Upload asset to what version? i.e v1.0 : " tag
-
+  GH_TAGS="$GH_REPO/releases/tags/$tag"
   filename=./ci/assets/default-kabanero-pipelines.tar.gz
 
   set -e xargs="$(which gxargs || which xargs)"
