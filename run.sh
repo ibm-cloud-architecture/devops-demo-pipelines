@@ -1,12 +1,15 @@
 #!/usr/bin/env bash
-
+#https://stackoverflow.com/questions/19482123/extract-part-of-a-string-using-bash-cut-split
 # define global variables
 CONFIG=$@
 BRANCH=$(git rev-parse --abbrev-ref HEAD)
-REPO_FULL_NAME=$(git config --get remote.origin.url | sed 's/.*:\/\/github.com\///;s/.git$//')
+REPO_FULL_NAME_HTPPS=$(git config --get remote.origin.url | sed 's/.*:\/\/github.com\///;s/.git$//')
+full_git=$(git config --get remote.origin.url)
+stripped_git=${full_git##*:}
+REPO_FULL_NAME_GIT=${stripped_git%.*}
 TOKEN=$(git config --global github.token)
 GH_API="https://api.github.com"
-GH_REPO="$GH_API/repos/$REPO_FULL_NAME"
+MODE="PLACEHOLDER"
 
 AUTH="Authorization: token $TOKEN"
 
@@ -49,11 +52,28 @@ create_release() {
   read -p "Enter Release Version i.e v1.0 : " version
   read -p "Enter description of release " text
   echo "Create release $version for repo: $REPO_FULL_NAME branch: $BRANCH"
-  curl --data "$(get_release_info)" "https://api.github.com/repos/$REPO_FULL_NAME/releases?access_token=$TOKEN"
+
+  if (( $(curl --silent --write-out "%{http_code}" --data `$(get_release_info)` "https://api.github.com/repos/$REPO_FULL_NAME_HTTPS/releases?access_token=$TOKEN") != 200 ))
+  then
+    MODE="HTTPS"
+    GH_REPO="$GH_API/repos/$REPO_FULL_NAME_HTTPS"
+  else 
+    curl --silent --data "$(get_release_info)" "https://api.github.com/repos/$REPO_FULL_NAME_GIT/releases?access_token=$TOKEN"
+    MODE="GIT"
+    GH_REPO="$GH_API/repos/$REPO_FULL_NAME_GIT"
+  fi
+  # upload_asset
+  # curl --data "$(get_release_info)" "https://api.github.com/repos/$REPO_FULL_NAME/releases?access_token=$TOKEN"
 }
 
 # method is responsible for uploading an asset to a release
 upload_asset() {
+  # if [[ "$MODE"="PLACEHOLDER" ]]
+  # then
+  #   echo "Please run option 3 first before running option 4."
+  #   exit 2
+  # fi
+  echo $GH_REPO
   read -p "Upload asset to what version? i.e v1.0 : " tag
   GH_TAGS="$GH_REPO/releases/tags/$tag"
   filename=./ci/assets/default-kabanero-pipelines.tar.gz
@@ -88,10 +108,21 @@ upload_asset() {
     exit 1
   }
 
-  # Construct url
-  GH_ASSET="https://uploads.github.com/repos/$REPO_FULL_NAME/releases/$id/assets?name=$(basename $filename)"
+    if [[ "$MODE"="HTTPS" ]]
+    then
+      # Construct url
+      GH_ASSET="https://uploads.github.com/repos/$REPO_FULL_NAME_HTTPS/releases/$id/assets?name=$(basename $filename)"
 
-  curl "$GITHUB_OAUTH_BASIC" --data-binary @"$filename" -H "Authorization: token $TOKEN" -H "Content-Type: application/octet-stream" "$GH_ASSET"
+      curl "$GITHUB_OAUTH_BASIC" --data-binary @"$filename" -H "Authorization: token $TOKEN" -H "Content-Type: application/octet-stream" "$GH_ASSET"
+    elif [[ "$MODE"="GIT" ]]
+    then
+      # Construct url
+      GH_ASSET="https://uploads.github.com/repos/$REPO_FULL_NAME_GIT/releases/$id/assets?name=$(basename $filename)"
+
+      curl "$GITHUB_OAUTH_BASIC" --data-binary @"$filename" -H "Authorization: token $TOKEN" -H "Content-Type: application/octet-stream" "$GH_ASSET"
+    else
+      echo "If you got here, something very bad happened."
+    fi
 }
 
 
