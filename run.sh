@@ -102,6 +102,7 @@ upload_asset() {
 # method is responsible for changing key/value pairs for the kabanero cr
 update_kabanero_cr() {
 
+  oc project kabanero
   # get current kabanero custom resource from openshift and store it in a temp file
   oc get kabaneros kabanero -o json > ./json/temp.json
 
@@ -144,6 +145,37 @@ update_kabanero_cr() {
 
   # print the new results
   oc get kabaneros kabanero -o yaml
+}
+
+
+add_pipeline_kabanero_cr() {
+  oc project kabanero
+
+  oc get kabaneros kabanero -o json > ./json/temp.json
+
+  read -p "Enter label for pipeline [i.e mcm-pipelines] " name_of_pipeline
+  read -p "Where are the pipelines being hosted? [i.e www.github.com/org/repo-pipelines/kabanero.tar.gz] " host_url
+  read -p "Enter name of tar file " tar_file_name
+
+  wget $host_url
+
+  get_sha=$(shasum -a 256 ./$tar_file_name | grep -Eo '^[^ ]+' )
+
+  echo $get_sha
+
+  # add double quotes to the sha256
+  new_sha=\"${get_sha}\"
+  generate_sha=
+  jq '.https.url="'$host_url'" | .id="'$name_of_pipeline'" | .sha256="'$get_sha'"'  ./json/add_pipeline_template.json > ./json/add_pipeline_modified_template.json
+
+  cat ./json/add_pipeline_modified_template.json
+
+  rm ./default-kabanero-pipelines.tar.gz
+
+  result=$(jq '.spec.stacks.pipelines[1]='"$(cat ./json/add_pipeline_modified_template.json)"'' ./json/kabanero.json)
+
+  echo $result | json_pp > ./json/kabanero-2.json
+
 }
 
 printf "===========================================================================\n\n"
@@ -216,6 +248,17 @@ while true; do
 
     printf "**************************************************************************\n\n"
     printf "================ FINISHED UPDATING KABANERO CUSTOM RESOURCE ===============\n\n"
+    printf "**************************************************************************\n\n"
+
+  elif [ "$user_input" = 6 ]; then
+    printf "**************************************************************************\n\n"
+    printf "========== BEGIN ADDING PIPELINE TO KABANERO CUSTOM RESOURCE ==============\n\n"
+    printf "**************************************************************************\n\n"
+
+    add_pipeline_kabanero_cr
+
+    printf "**************************************************************************\n\n"
+    printf "======== FINISHED ADDING PIPELINE TO KABANERO CUSTOM RESOURCE ============\n\n"
     printf "**************************************************************************\n\n"
 
   fi

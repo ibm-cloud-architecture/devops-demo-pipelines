@@ -1,0 +1,7 @@
+{
+  "https": {
+    "url": "https://github.com/oiricaud/pipelines/releases/download/v42.0/default-kabanero-pipelines.tar.gz"
+  },
+  "id": "mcm-pipelines",
+  "sha256": "9f6cc7f70fc0a8a876cc0111d3afa0633d636daaedfc0619557059ce156c0d8c"
+}
