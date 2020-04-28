@@ -1,2 +1,4 @@
 .DS_Store
 ./pipelines/ci/env.sh
+/.idea/
+Oscar.Ricaud@ibm.com.iml

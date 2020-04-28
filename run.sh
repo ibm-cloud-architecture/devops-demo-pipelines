@@ -1,10 +1,14 @@
 #!/usr/bin/env bash
 
-# define variables
+# define global variables
 CONFIG=$@
-branch=$(git rev-parse --abbrev-ref HEAD)
-repo_full_name=$(git config --get remote.origin.url | sed 's/.*:\/\/github.com\///;s/.git$//')
-token=$(git config --global github.token)
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
+REPO_FULL_NAME=$(git config --get remote.origin.url | sed 's/.*:\/\/github.com\///;s/.git$//')
+TOKEN=$(git config --global github.token)
+GH_API="https://api.github.com"
+GH_REPO="$GH_API/repos/$REPO_FULL_NAME"
+GH_TAGS="$GH_REPO/releases/tags/$tag"
+AUTH="Authorization: token $TOKEN"
 
 # commits latest changes and pushes them to the git repo
 commit_push_latest() {
@@ -30,7 +34,7 @@ get_release_info() {
     cat <<EOF
   {
     "tag_name": "$version",
-    "target_commitish": "$branch",
+    "target_commitish": "$BRANCH",
     "name": "$version",
     "body": "$text",
     "draft": false,
@@ -44,8 +48,8 @@ EOF
 create_release() {
   read -p "Enter Release Version i.e v1.0 : " version
   read -p "Enter description of release " text
-  echo "Create release $version for repo: $repo_full_name branch: $branch"
-  curl --data "$(get_release_info)" "https://api.github.com/repos/$repo_full_name/releases?access_token=$token"
+  echo "Create release $version for repo: $REPO_FULL_NAME branch: $BRANCH"
+  curl --data "$(get_release_info)" "https://api.github.com/repos/$REPO_FULL_NAME/releases?access_token=$TOKEN"
 }
 
 # method is responsible for uploading an asset to a release
@@ -53,8 +57,6 @@ upload_asset() {
   read -p "Upload asset to what version? i.e v1.0 : " tag
 
   filename=./ci/assets/default-kabanero-pipelines.tar.gz
-  github_api_token=$(git config --global github.token)
-  repo_full_name=$(git config --get remote.origin.url | sed 's/.*:\/\/github.com\///;s/.git$//')
 
   set -e xargs="$(which gxargs || which xargs)"
 
@@ -64,12 +66,6 @@ upload_asset() {
   for line in $CONFIG; do
     eval "$line"
   done
-
-  # Define variables.
-  GH_API="https://api.github.com"
-  GH_REPO="$GH_API/repos/$repo_full_name"
-  GH_TAGS="$GH_REPO/releases/tags/$tag"
-  AUTH="Authorization: token $github_api_token"
 
   if [[ "$tag" == 'LATEST' ]]; then
     GH_TAGS="$GH_REPO/releases/latest"
@@ -93,15 +89,14 @@ upload_asset() {
   }
 
   # Construct url
-  GH_ASSET="https://uploads.github.com/repos/$repo_full_name/releases/$id/assets?name=$(basename $filename)"
+  GH_ASSET="https://uploads.github.com/repos/$REPO_FULL_NAME/releases/$id/assets?name=$(basename $filename)"
 
-  curl "$GITHUB_OAUTH_BASIC" --data-binary @"$filename" -H "Authorization: token $github_api_token" -H "Content-Type: application/octet-stream" "$GH_ASSET"
+  curl "$GITHUB_OAUTH_BASIC" --data-binary @"$filename" -H "Authorization: token $TOKEN" -H "Content-Type: application/octet-stream" "$GH_ASSET"
 }
 
 
 # method is responsible for changing key/value pairs for the kabanero cr
 update_kabanero_cr() {
-
   oc project kabanero
   # get current kabanero custom resource from openshift and store it in a temp file
   oc get kabaneros kabanero -o json > ./json/temp.json
@@ -111,7 +106,7 @@ update_kabanero_cr() {
 
   # define variables
   pipeline_to_update=\"${name_of_pipeline}\"
-  new_url="https://github.com/oiricaud/pipelines/releases/download/$release_version/default-kabanero-pipelines.tar.gz"
+  new_url="https://github.com/$REPO_FULL_NAME/releases/download/$release_version/default-kabanero-pipelines.tar.gz"
   get_sha=$(shasum -a 256 ./ci/assets/default-kabanero-pipelines.tar.gz | grep -Eo '^[^ ]+' )
 
   # add double quotes to the sha256
@@ -129,7 +124,7 @@ update_kabanero_cr() {
         pipeline_index=$n;
       fi
   done
-  printf $pipeline_index
+  echo $pipeline_index
 
   # update values for keys url and sha256 and store it in a new kaberno.json file
   jq '.spec.stacks.pipelines | .['$pipeline_index'].https.url = '\"${new_url}\"' | .['$pipeline_index'].sha256 = '$new_sha'' ./json/temp.json | json_pp > ./json/kabanero.json
