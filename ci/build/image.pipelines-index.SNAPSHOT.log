@@ -1,3 +1,2 @@
-BUILDING: yellocabins/pipelines-index:SNAPSHOT
-time="2020-04-27T21:25:35-04:00" level=error msg="failed to dial gRPC: unable to upgrade to h2c, received 502"
-context canceled
+BUILDING: kabanero/pipelines-index:SNAPSHOT
+Cannot connect to the Docker daemon at unix:///var/run/docker.sock. Is the docker daemon running?
