@@ -20,9 +20,9 @@ contents:
 - file: mcm-pipelines/tasks/nodejs-image-scan-task.yaml
   sha256: 6a2fe0259b40a7fcd4cd4e59167c8a66c1ef7f8e902ce175505a5583490b35b4
 - file: mcm-pipelines/tasks/clone-ops-update-repo-task.yaml
-  sha256: 1407ba0a7dfe3ae4effba721e8745dd5e23f89b06c323e022e5bc839aa2b3ea6
+  sha256: 5fcb5cc54783af10141c09cb1a826a1519e8f067ccf985509a312740b83f00d2
 - file: mcm-pipelines/pipelines/nodejs-mcm-pl.yaml
-  sha256: ef3c06dfe83bcb0fb0a173acc2cb0d7c1eac2e32fe55fb34553e916f24f0eee2
+  sha256: 5b89c00f990f8c4c0a2e1872753a0920989eeddac119c919022cabb26e1d256a
 - file: mcm-pipelines/templates/nodejs-mcm-pl-template.yaml
   sha256: 54bc2ab21a1e0f064058c0d749619c0f9d92faf38a194200310d0767650b28ad
 - file: mcm-pipelines/bindings/nodejs-mcm-pl-push-binding.yaml
