@@ -3,13 +3,14 @@
 # define global variables
 CONFIG=$@
 BRANCH="master" # we need this because the releases are pushed onto the master branch instead of a feature or issue branch
-REPO_FULL_NAME_HTTPS=$(git config --get remote.origin.url | sed 's/.*:\/\/github.com\///;s/.git$//')
+#REPO_FULL_NAME_HTTPS=$(git config --get remote.origin.url | sed 's/.*:\/\/github.com\///;s/.git$//')
+REPO_FULL_NAME_HTTPS=ibm-cloud-architecture/devops-demo-kabanero-pipelines
 FULL_GIT=$(git config --get remote.origin.url)
 STRIPPED_GIT=${FULL_GIT##*:}
 REPO_FULL_NAME_GIT=${STRIPPED_GIT%.*}
 TOKEN=$(git config --global github.token)
 GH_API="https://api.github.com"
-MODE="PLACEHOLDER"
+MODE="HTTPS"
 AUTH="Authorization: token $TOKEN"
 
 # commits latest changes and pushes them to the git repo
@@ -50,8 +51,11 @@ EOF
 create_release() {
   read -p "Enter Release Version i.e v1.0 : " version
   read -p "Enter description of release " text
-  echo "Create release $version for repo: $REPO_FULL_NAME branch: $BRANCH"
-
+  echo "Create release $version for repo: $REPO_FULL_NAME_HTTPS branch: $BRANCH"
+  echo $(get_release_info) 
+  echo $GH_REPO
+  echo $TOKEN
+  echo $REPO_FULL_NAME_HTTPS
   if [[ $(curl --silent --write-out "%{http_code}"  --output curl.trace --data "$(get_release_info)" "https://api.github.com/repos/$REPO_FULL_NAME_HTTPS/releases?access_token=$TOKEN") != 200 ]] ; then
     MODE="HTTPS"
     GH_REPO="$GH_API/repos/$REPO_FULL_NAME_HTTPS"
