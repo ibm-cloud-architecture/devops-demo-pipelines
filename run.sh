@@ -171,7 +171,6 @@ update_kabanero_cr() {
 
 
 add_pipeline_kabanero_cr() {
-  pwd
   # switch to the kabanero namespace
   oc project kabanero
 
