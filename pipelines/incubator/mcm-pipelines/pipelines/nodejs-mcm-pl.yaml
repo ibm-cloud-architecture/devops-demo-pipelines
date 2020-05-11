@@ -62,4 +62,4 @@ spec:
       runAfter:
         - image-scan-task
       taskRef:
-        name: clone-ops-update-repo-task
+        name: gitops
