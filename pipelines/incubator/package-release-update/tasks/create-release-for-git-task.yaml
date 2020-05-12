@@ -9,7 +9,7 @@ spec:
   inputs:
     params:
       - name: asuh-image
-        default: googlefu/apic_compiler:v4-amd64
+        default: googlefu/apic_compiler:v3-amd64
         type: string
       - name: registry
         description: Specify the name of the project being built.
@@ -26,18 +26,29 @@ spec:
       - name: image
         type: image
   steps:
-
     - name: setup-environment
-      image: quay.io/buildah/stable
+      image: $(inputs.params.asuh-image)
       script: |
-        #!/usr/bin/env bash
-        # yum install -y jq bc tree wget curl git
-        echo $REGISTRY
-        # cd /workspace/source/ci
+        pwd
+        cd ci
 
-        # tree .
-        # ./env.sh
-        # tree .
+        # generate your zip file
+        ./package.sh
+
+        # get current release version in git
+        temp=$(git config --get remote.origin.url | sed 's/.*:\/\/github.com\///;s/.git$//')
+        echo $temp
+
+        curl -s https://api.github.com/repos/$temp/releases/latest > get_version.json
+        echo "one"
+        current_version=jq --raw-output '.tag_name' ./get_version.json
+        echo $current_version
+        remove_first_char="${current_version:1}" # v42.0 -> 42.0
+        new_version=$remove_first_char+1
+        echo $new_version
+
+        echo "Create release $new_version for repo: $repo_full_name branch: $branch"
+        curl --data "$(get_release_info)" "https://api.github.com/repos/$repo_full_name/releases?access_token=$token"
       env:
         - name: IMAGE_REGISTRY_USERNAME
           valueFrom:

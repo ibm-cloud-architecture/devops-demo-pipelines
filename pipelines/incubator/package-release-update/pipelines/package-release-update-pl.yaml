@@ -58,6 +58,3 @@ spec:
       taskRef:
         kind: Task
         name: create-release-for-git-task
-
-
-
