@@ -35,7 +35,7 @@ spec:
           cd devops-demo-dev-env
 
           # update value for key applicationImage
-          sed -i "/applicationImage: /c\applicationImage: $(inputs.resources.image.url)" ./app-deploy.yaml
+          sed -i "/applicationImage: /c\  applicationImage: $(inputs.resources.image.url)" ./app-deploy.yaml
 
           # verify the value for key applicationImage got updated
           cat ./app-deploy.yaml | grep "applicationImage"
