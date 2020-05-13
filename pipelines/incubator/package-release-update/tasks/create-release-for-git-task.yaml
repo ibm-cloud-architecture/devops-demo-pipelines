@@ -30,33 +30,17 @@ spec:
       image: $(inputs.params.asuh-image)
       script: |
 
-        cd ci
-
         # generate your zip file
+        cd ci
         ./package.sh
 
       env:
-        - name: IMAGE_REGISTRY_USERNAME
-          valueFrom:
-            secretKeyRef:
-              name: oscar-ricaud-docker
-              key: username
-        - name: IMAGE_REGISTRY_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: oscar-ricaud-docker
-              key: password
-        - name: REPO_ORG
-          value: oiricaud
-        - name: REPO_NAME
-          value: devops-demo-kabanero-pipelines
-        - name: REGISTRY
-          value: $(inputs.params.registry)
         - name: IMAGE_REGISTRY_PUBLISH
-          value: $(inputs.params.image-registry-publish)
+          value: 'false'
+        - name: REGISTRY
+          value: docker.io
       resources: {}
       workingDir: $(inputs.resources.source.path)
-
 
     - name: create-release
       image: $(inputs.params.asuh-image)
@@ -65,10 +49,9 @@ spec:
         - |
           set -e
 
+          # install packages
           apt-get install -y jq curl git bc
           
-          # place to host your pipelines
-
           # This function creates a json file to be used later in the curl call
           get_release_info() {
             {
@@ -227,18 +210,13 @@ spec:
       script: |
         #!/usr/bin/env bash
         # install packages
-        apt-get install -y jq curl git bc
+        apt-get install -y jq curl git bc wget
 
         oc project kabanero
 
         oc get kabaneros kabanero -o json > ./json/temp.json
       
-        # read -p "Enter label for pipeline [i.e mcm-pipelines] " name_of_pipeline
-        # read -p "Where are the pipelines being hosted? [i.e www.github.com/org/repo-pipelines/kabanero.tar.gz] " host_url
-        # read -p "Enter name of tar file " tar_file_name
-        
-        curl -s https://api.github.com/repos/$REPO_ORG/$REPO_NAME/releases/latest > repo_details.json
-
+        # print repo details
         cat ./repo_details.json
 
         current_version=$(jq --raw-output '.tag_name' ./repo_details.json)
@@ -288,5 +266,10 @@ spec:
             secretKeyRef:
               name: oscar-ricaud-git
               key: password
+        - name: REPO_ORG
+          value: oiricaud
+        - name: REPO_NAME
+          value: pipeline-server
+        - name: REGISTRY        
       resources: {}
       workingDir: $(inputs.resources.source.path)
