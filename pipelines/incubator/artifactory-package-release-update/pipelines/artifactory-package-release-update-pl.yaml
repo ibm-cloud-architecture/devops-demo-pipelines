@@ -1,0 +1,51 @@
+# The responsibility of this pipeline is to package kabanero pipelines,
+# release them to github and create and update the kabanero custom resource to
+# point to x release.
+
+# The only constant is change.
+# Pipelines will grow and change over time and hence we need a place to version
+# control pipelines.
+
+# e.g
+# xyz-pipeline grows over time and exists in the xyz-pipeline github repo
+# you would then use this pipeline in the kabanero namespace and create a web-
+# hook for the xyz-pipeline repo and use the package-release-update-pl pipeline
+# to deploy your xyz-pipeline repo to kabanero
+apiVersion: tekton.dev/v1alpha1
+kind: Pipeline
+metadata:
+  name: artifactory-package-release-update-pl
+  namespace: kabanero
+  author: Oscar I. Ricaud
+  date: 05/13/2020
+spec:
+  params:
+#    - name: event-type
+#      description: The event type
+#      type: string
+#    - name: event-ref
+#      description: The event ref
+#      type: string
+    - name: pipeline-version
+      description: This is the version that we are uploading to artifacotry
+      type: string
+      default: ""
+  resources:
+    - name: git-source
+      type: git
+  tasks:
+    - name: create-release-for-git
+      resources:
+        inputs:
+          - name: source
+            resource: git-source
+      params:
+        - name: pipeline-version
+          value: $(params.pipeline-version)
+#        - name: index-image
+#          value: $(params.index-image)
+#        - name: image-registry-publish
+#          value: $(params.image-registry-publish)
+      taskRef:
+        kind: Task
+        name: create-release-for-artifactory-task
