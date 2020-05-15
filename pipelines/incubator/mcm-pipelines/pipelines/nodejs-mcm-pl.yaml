@@ -63,3 +63,15 @@ spec:
         - image-scan-task
       taskRef:
         name: gitops
+    - name: health-check # clone ops repo and update repo app-deploy.yaml file
+      resources:
+        inputs:
+          - name: source
+            resource: git-source
+          - name: image
+            resource: docker-image
+      runAfter:
+        - image-scan-task
+      taskRef:
+        name: health-check-task
+

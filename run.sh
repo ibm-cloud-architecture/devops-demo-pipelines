@@ -171,33 +171,49 @@ update_kabanero_cr() {
 
 
 add_pipeline_kabanero_cr() {
+  # switch to the kabanero namespace
   oc project kabanero
 
-  oc get kabaneros kabanero -o json > ./json/temp.json
+  # save the kabanero cr to a kabanero.json file
+  oc get kabaneros kabanero -o json > ./json/kabanero.json
 
   read -p "Enter label for pipeline [i.e mcm-pipelines] " name_of_pipeline
   read -p "Where are the pipelines being hosted? [i.e www.github.com/org/repo-pipelines/kabanero.tar.gz] " host_url
   read -p "Enter name of tar file " tar_file_name
 
+  # save the tar file locally
   wget $host_url
 
+  # generate sha256 on the zip file
   get_sha=$(shasum -a 256 ./$tar_file_name | grep -Eo '^[^ ]+' )
 
-  echo $get_sha
+  echo "sha256 value: "$get_sha
 
   # add double quotes to the sha256
   new_sha=\"${get_sha}\"
-  generate_sha=
+
+  # get the add_pipeline_template.json and replace the url, id and sha256 values and store it in another file
   jq '.https.url="'$host_url'" | .id="'$name_of_pipeline'" | .sha256="'$get_sha'"'  ./json/add_pipeline_template.json > ./json/add_pipeline_modified_template.json
 
   cat ./json/add_pipeline_modified_template.json
 
   rm ./default-kabanero-pipelines.tar.gz
 
-  result=$(jq '.spec.stacks.pipelines[1]='"$(cat ./json/add_pipeline_modified_template.json)"'' ./json/kabanero.json)
+  # Get the number of pipelines we currently have on the kabanero CR and increment by 1
+  num_of_pipelines=$(jq '.spec.stacks.pipelines | length' ./json/kabanero.json)+1
 
+  # add the add_pipeline_modified_template.json to the kabanero.json file
+  result=$(jq '.spec.stacks.pipelines['$num_of_pipelines']='"$(cat ./json/add_pipeline_modified_template.json)"'' ./json/kabanero.json)
+
+  # prettify and store the result in another file
   echo $result | json_pp > ./json/kabanero-2.json
 
+  cd ./json
+
+  cat ./kabanero-2.json
+
+  # apply your new changes to the kabanero custom resource
+  oc apply -f kabanero-2.json
 }
 
 printf "===========================================================================\n\n"
