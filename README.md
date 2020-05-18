@@ -16,44 +16,46 @@ An Artifactory account
  
 # Deploy pipelines via Artifactory
 
-# Deploy pipelines via Git Releases
+# Deploy pipelines via Git Releases (Manually)
 
-# Deploy pipelines via the run.sh
+# Deploy pipelines via Git Releases (Automated)
 ### Pre-reqs
-- You need to create a github [token](https://help.github.com/en/github/authenticating-to-github/creating-a-personal-access-token-for-the-command-line).
+You need to create a github [token](https://help.github.com/en/github/authenticating-to-github/creating-a-personal-access-token-for-the-command-line).
     
-    ```bash
-    ~/Documents/devops-demo-kabanero-pipelines/ cat ~/.gitconfig
-  
-    [user]
-          name = firstname.lastname
-          email = your-github-email@email.com
-    [github]
-          token = your-token
-    [core]
-          autocrlf = input
-    ```
+```bash
+~/Documents/devops-demo-kabanero-pipelines/ cat ~/.gitconfig
+
+[user]
+      name = firstname.lastname
+      email = your-github-email@email.com
+[github]
+      token = your-token
+```
     
 
-- You need to fork this repo and clone via https.
+You need to fork this repo and clone via https.
     
-    ```bash
-    git clone https://github.com/ibm-cloud-architecture/devops-demo-kabanero-pipelines 
-    cd devops-demo-kabanero-pipelines
-    ```
-- You need another repository to host your pipelines. i.e [pipelines-server](https://github.com/oiricaud/pipeline-server/releases) to create git-releases.
+```bash
+git clone https://github.com/ibm-cloud-architecture/devops-demo-kabanero-pipelines 
+cd devops-demo-kabanero-pipelines
+```
+You need another repository to host your pipelines. i.e [pipelines-server](https://github.com/oiricaud/pipeline-server/releases) to create git-releases.
   
-    ``` bash
-    mkdir pipeline-server
-    cd pipeline-server
-    git init 
-    cat >> README.md
-        Hello this is my pipeline-server repo press (ctrl+d to save)
-    git add README.md
-    git commit -m "added README.md"
-    git push
-    ```
-- You need to create a webhook
+``` bash
+mkdir pipeline-server
+cd pipeline-server
+git init 
+cat >> README.md
+    Hello this is my pipeline-server repo press (ctrl+d to save)
+git add README.md
+git commit -m "added README.md"
+git push
+```
+
+Now is the time to make any changes you wish to make, or you can use the custom pipelines we have provided for you.
+
+
+You need to create a webhook
 
 [![asciicast](https://asciinema.org/a/315675.svg)](https://asciinema.org/a/315675)
 
