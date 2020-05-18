@@ -5,6 +5,8 @@
   * [Deploy pipelines on Git Manually](#deploy-pipelines-on-git-manually)
   * [Deploy pipelines on Git Automated](#deploy-pipelines-on-git-automated)
   * [Deploy pipelines without version control](#deploy-pipelines-without-version-control)
+  * [Create tekton webhook](#create-a-tekton-webhook)
+  
 # Introduction
 This repository includes 3 directories, `experimental`(pipelines that are not production-ready and are considered,
 proof of concept),`incubator`(pipelines that are not production-ready and require further development to satisfy the stable criteria.) 
@@ -45,10 +47,22 @@ oc apply -f artifactory-config.yaml
 
 Then go to [pipelines](pipelines) make any modifications you want to do to any of the pipelines, or include your own.
 If you do include your pipelines, use the [skeleton](pipelines/skeleton) to add your modified pipelines, tasks,
-bindings, and templates.
+bindings, and templates. Go to section [Create tekton webhook](#create-a-tekton-webhook) to create your webhook.
+Once you are done with that go to your forked repository and make a change and your tekton dashboard should create a 
+new pipeline run as shown below:
 
+[artifactory-package-release-update-pl-rn.png](img/artifactory-package-release-update-pl-rn.png)
+
+You could also manually trigger your pipelines
+![](gifs/artifactory-package-release-update-pl-rn.gif)
+
+Where the `git-source` is defined as the pipeline resource with key [url] and value [github repo url] 
 
 # Deploy pipelines on Git (Manually)
+You will first need to package your pipelines. To do that go to the [package-pipelines](#package-pipelines)
+Create a new repository i.e named `pipeline-server` on github and follow the steps as shown on the gif.
+
+
 
 # Deploy pipelines on Git (Automated)
 ### Pre-reqs
@@ -111,6 +125,72 @@ Target Pipeline Settings
         Service Account: Pipeline
         Docker Registry: us.icr.io/project-name or docker.hub.io/projectname
         
+
+# Package pipelines
+To package your pipelines you must run the `run.sh` script as shown below: 
+Enter `1` to set up your environment, containerize your pipelines and release them to a registry. 
+Ensure to update the variables (optional) in [env.sh](ci/env.sh) with your corresponding registry values.
+
+``` bash
+# Publish images to image registry
+# export IMAGE_REGISTRY_PUBLISH=false
+
+# Credentials for publishing images:
+# export IMAGE_REGISTRY=your-image-registry
+# export IMAGE_REGISTRY_USERNAME=your-image-registry-username
+# export IMAGE_REGISTRY_PASSWORD=your-image-password
+
+# Organization for images
+# export IMAGE_REGISTRY_ORG=your-org-name
+
+# Name of pipelines-index image (ci/package.sh)
+# export INDEX_IMAGE=pipelines-index
+
+# Version or snapshot identifier for pipelines-index (ci/package.sh)
+# export INDEX_VERSION=SNAPSHOT
+```
+
+``` bash
+    > ./run.sh
+    ===========================================================================
+    
+    ======================== AUTOMATOR SCRIPT =================================
+    
+    ===========================================================================
+    
+    Do you want to
+        1) Set up environment, containerzied pipelines and release them to a registry?
+        2) Add, commit and push your latest changes to github?
+        3) Create a git release for your pipelines?
+        4) Upload an asset to a git release version?
+        5) Update the Kabanero CR custom resource with a release?
+        6) Add a stable pipeline release version to the Kabanero custom resource?
+        enter a number > 1
+    **************************************************************************
+    
+    **************** BEGIN SETTING UP ENV, PACKAGE AND RELEASE ***************
+    
+    **************************************************************************
+    
+    /Users/Oscar.Ricaud@ibm.com/Documents/gse-devops/github.com/oiricaud-devops-demo-kabanero-pipelines
+    Asset name: mcm-pipelines/tasks/igc-nodejs-test.yaml
+    Asset name: mcm-pipelines/tasks/nodejs-build-push-task.yaml
+    Asset name: mcm-pipelines/tasks/nodejs-image-scan-task.yaml
+    Asset name: mcm-pipelines/tasks/gitops.yaml
+    Asset name: mcm-pipelines/tasks/health-check-task.yaml
+    Asset name: mcm-pipelines/pipelines/nodejs-mcm-pl.yaml
+    Asset name: mcm-pipelines/templates/nodejs-mcm-pl-template.yaml
+    Asset name: mcm-pipelines/bindings/nodejs-mcm-pl-push-binding.yaml
+    Asset name: mcm-pipelines/bindings/nodejs-mcm-pl-pullrequest-binding.yaml
+    Asset name: manifest.yaml
+    --- Created kabanero-pipelines.tar.gz
+    Failed building image
+    IMAGE_REGISTRY_PUBLISH=false; Skipping push of docker.io/yellocabins/pipelines-index
+    IMAGE_REGISTRY_PUBLISH=false; Skipping push of docker.io/yellocabins/pipelines-index:SNAPSHOT
+    IMAGE_REGISTRY_PUBLISH=false; Skipping push of docker.io/yellocabins/pipelines-index
+    IMAGE_REGISTRY_PUBLISH=false; Skipping push of docker.io/yellocabins/pipelines-index:SNAPSHOT
+   
+```
 
 # Deploy pipelines without Version Control 
 You can but not recommended non-version control your pipelines by running the following command
