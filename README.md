@@ -18,8 +18,9 @@ This repository also contains multiple pipelines such as [artifactory-package-re
 You can view all [/pipelines/](./pipelines/incubator). The repository also contains a [./run.sh](./run.sh) script file which helps automate the process of deploying your pipelines on git.
 
 There are multiple approaches on packaging and releasing your pipelines. Both the `artifactory-package-release-update` & `git-package-release-update` pipelines do the same thing, package, manage
-and deploy your custom pipelines, except in different environments. For example, the `artifactory-package-release-update` pipeline, packages your
- pipelines and deploys them onto Artifactory, where as the `git-package-release-update` are deployed as git releases.
+and deploy your custom pipelines, except hosted in different environments. For example, the `artifactory-package-release-update` pipeline, packages your
+pipelines and host them onto Artifactory, where as the `git-package-release-update` are hosted as git releases. The goal of this repository
+is to get you going in managing your custom made pipelines. 
 
 The `mcm-pipelines` contains the tasks of building, testing, pushing an image and a healthcheck of a nodejs application. It also
 does a `sonar-scan` for code coverage.
@@ -69,7 +70,7 @@ But first, create a new repository i.e named `pipeline-server` on github and fol
 ![](gifs/create-release-git.gif)
 
 
-# Host pipelines on Git (Automated)
+# Host pipelines on Git using the runner script
 ### Pre-reqs
 You need to create a github 
 [token](https://help.github.com/en/github/authenticating-to-github/creating-a-personal-access-token-for-the-command-line)
@@ -112,6 +113,7 @@ Now is the time to make any changes you wish to make, or you can use the custom 
 
 # Create a tekton webhook 
 ### Pre-reqs
+
 You need to create an access token on the tekton dashboard or cli in the kabanero namespace.
 Earlier you created a github token on the github dashboard. You will need to get that token or generate another one and 
 paste it below.
@@ -138,62 +140,62 @@ Ensure to update the variables (optional) in [env.sh](ci/env.sh) with your corre
 
 ``` bash
 # Publish images to image registry
-# export IMAGE_REGISTRY_PUBLISH=false
+export IMAGE_REGISTRY_PUBLISH=false
 
 # Credentials for publishing images:
-# export IMAGE_REGISTRY=your-image-registry
-# export IMAGE_REGISTRY_USERNAME=your-image-registry-username
-# export IMAGE_REGISTRY_PASSWORD=your-image-password
+export IMAGE_REGISTRY=your-image-registry
+export IMAGE_REGISTRY_USERNAME=your-image-registry-username
+export IMAGE_REGISTRY_PASSWORD=your-image-password
 
 # Organization for images
-# export IMAGE_REGISTRY_ORG=your-org-name
+export IMAGE_REGISTRY_ORG=your-org-name
 
 # Name of pipelines-index image (ci/package.sh)
-# export INDEX_IMAGE=pipelines-index
+export INDEX_IMAGE=pipelines-index
 
 # Version or snapshot identifier for pipelines-index (ci/package.sh)
-# export INDEX_VERSION=SNAPSHOT
+export INDEX_VERSION=SNAPSHOT
 ```
 
 ``` bash
-    > ./run.sh
-    ===========================================================================
-    
-    ======================== AUTOMATOR SCRIPT =================================
-    
-    ===========================================================================
-    
-    Do you want to
-        1) Set up environment, containerzied pipelines and release them to a registry?
-        2) Add, commit and push your latest changes to github?
-        3) Create a git release for your pipelines?
-        4) Upload an asset to a git release version?
-        5) Update the Kabanero CR custom resource with a release?
-        6) Add a stable pipeline release version to the Kabanero custom resource?
-        enter a number > 1
-    **************************************************************************
-    
-    **************** BEGIN SETTING UP ENV, PACKAGE AND RELEASE ***************
-    
-    **************************************************************************
-    
-    /Users/Oscar.Ricaud@ibm.com/Documents/gse-devops/github.com/oiricaud-devops-demo-kabanero-pipelines
-    Asset name: mcm-pipelines/tasks/igc-nodejs-test.yaml
-    Asset name: mcm-pipelines/tasks/nodejs-build-push-task.yaml
-    Asset name: mcm-pipelines/tasks/nodejs-image-scan-task.yaml
-    Asset name: mcm-pipelines/tasks/gitops.yaml
-    Asset name: mcm-pipelines/tasks/health-check-task.yaml
-    Asset name: mcm-pipelines/pipelines/nodejs-mcm-pl.yaml
-    Asset name: mcm-pipelines/templates/nodejs-mcm-pl-template.yaml
-    Asset name: mcm-pipelines/bindings/nodejs-mcm-pl-push-binding.yaml
-    Asset name: mcm-pipelines/bindings/nodejs-mcm-pl-pullrequest-binding.yaml
-    Asset name: manifest.yaml
-    --- Created kabanero-pipelines.tar.gz
-    Failed building image
-    IMAGE_REGISTRY_PUBLISH=false; Skipping push of docker.io/yellocabins/pipelines-index
-    IMAGE_REGISTRY_PUBLISH=false; Skipping push of docker.io/yellocabins/pipelines-index:SNAPSHOT
-    IMAGE_REGISTRY_PUBLISH=false; Skipping push of docker.io/yellocabins/pipelines-index
-    IMAGE_REGISTRY_PUBLISH=false; Skipping push of docker.io/yellocabins/pipelines-index:SNAPSHOT
+    $ ./run.sh
+===========================================================================
+
+======================== AUTOMATOR SCRIPT =================================
+
+===========================================================================
+
+Do you want to
+    1) Set up environment, containerzied pipelines and release them to a registry?
+    2) Add, commit and push your latest changes to github?
+    3) Create a git release for your pipelines?
+    4) Upload an asset to a git release version?
+    5) Update the Kabanero CR custom resource with a release?
+    6) Add a stable pipeline release version to the Kabanero custom resource?
+    enter a number > 1
+**************************************************************************
+
+**************** BEGIN SETTING UP ENV, PACKAGE AND RELEASE ***************
+
+**************************************************************************
+
+/Users/Oscar.Ricaud@ibm.com/Documents/gse-devops/github.com/oiricaud-devops-demo-kabanero-pipelines
+Asset name: mcm-pipelines/tasks/igc-nodejs-test.yaml
+Asset name: mcm-pipelines/tasks/nodejs-build-push-task.yaml
+Asset name: mcm-pipelines/tasks/nodejs-image-scan-task.yaml
+Asset name: mcm-pipelines/tasks/gitops.yaml
+Asset name: mcm-pipelines/tasks/health-check-task.yaml
+Asset name: mcm-pipelines/pipelines/nodejs-mcm-pl.yaml
+Asset name: mcm-pipelines/templates/nodejs-mcm-pl-template.yaml
+Asset name: mcm-pipelines/bindings/nodejs-mcm-pl-push-binding.yaml
+Asset name: mcm-pipelines/bindings/nodejs-mcm-pl-pullrequest-binding.yaml
+Asset name: manifest.yaml
+--- Created kabanero-pipelines.tar.gz
+Failed building image
+IMAGE_REGISTRY_PUBLISH=false; Skipping push of docker.io/yellocabins/pipelines-index
+IMAGE_REGISTRY_PUBLISH=false; Skipping push of docker.io/yellocabins/pipelines-index:SNAPSHOT
+IMAGE_REGISTRY_PUBLISH=false; Skipping push of docker.io/yellocabins/pipelines-index
+IMAGE_REGISTRY_PUBLISH=false; Skipping push of docker.io/yellocabins/pipelines-index:SNAPSHOT
    
 ```
 
