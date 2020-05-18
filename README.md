@@ -1,6 +1,6 @@
 # Introduction
 This repository contains multiple pipelines such as `artifactory-package-release-update`, `git-package-release-update` and
-`mcm-pipelines`. You can view all the pipelines at `/pipelines/incubator`. It also contains a `./run.sh` script file which helps automate the process of deploying your pipelines on git.
+`mcm-pipelines`. You can view all the pipelines at `/pipelines/incubator`. The repository also contains a `./run.sh` script file which helps automate the process of deploying your pipelines on git.
 
 There are multiple approaches on packaging and releasing your pipelines. Both the `artifactory-package-release-update` & `git-package-release-update` pipelines do the same thing, package, manage
 and deploy your custom pipelines, except in different environments. For example, the `artifactory-package-release-update` pipeline, packages your
@@ -18,7 +18,42 @@ An Artifactory account
 
 # Deploy pipelines via Git Releases
 
-# Deploy pipelines via the `run.sh`
+# Deploy pipelines via the run.sh
+### Pre-reqs
+- You need to create a github [token](https://help.github.com/en/github/authenticating-to-github/creating-a-personal-access-token-for-the-command-line).
+    
+    ```bash
+    ~/Documents/devops-demo-kabanero-pipelines/ cat ~/.gitconfig
+  
+    [user]
+          name = firstname.lastname
+          email = your-github-email@email.com
+    [github]
+          token = your-token
+    [core]
+          autocrlf = input
+    ```
+    
+
+- You need to fork this repo and clone via https.
+    
+    ```bash
+    git clone https://github.com/ibm-cloud-architecture/devops-demo-kabanero-pipelines 
+    cd devops-demo-kabanero-pipelines
+    ```
+- You need another repository to host your pipelines. i.e [pipelines-server](https://github.com/oiricaud/pipeline-server/releases) to create git-releases.
+  
+    ``` bash
+    mkdir pipeline-server
+    cd pipeline-server
+    git init 
+    cat >> README.md
+        Hello this is my pipeline-server repo press (ctrl+d to save)
+    git add README.md
+    git commit -m "added README.md"
+    git push
+    ```
+- You need to create a webhook
 
 [![asciicast](https://asciinema.org/a/315675.svg)](https://asciinema.org/a/315675)
 
