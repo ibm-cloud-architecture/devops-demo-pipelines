@@ -6,6 +6,7 @@
   * [Deploy pipelines on Git Automated](#deploy-pipelines-on-git-automated)
   * [Deploy pipelines without version control](#deploy-pipelines-without-version-control)
   * [Create tekton webhook](#create-a-tekton-webhook)
+  * [Package pipelines](#package-pipelines)
   
 # Introduction
 This repository includes 3 directories, `experimental`(pipelines that are not production-ready and are considered,
@@ -60,8 +61,12 @@ Where the `git-source` is defined as the pipeline resource with key [url] and va
 
 # Deploy pipelines on Git (Manually)
 You will first need to package your pipelines. To do that go to the [package-pipelines](#package-pipelines)
-Create a new repository i.e named `pipeline-server` on github and follow the steps as shown on the gif.
+After you are done with that step you will notice a new file named `default-kabanero-pipelines.tar.gz` under
+`ci/assets` which includes your pipelines along with their corresponding checksum values. You will use this file to upload
+as an asset on github.
 
+But first, create a new repository i.e named `pipeline-server` on github and follow the steps as shown on the gif.
+![](gifs/create-release-git.gif)
 
 
 # Deploy pipelines on Git (Automated)
