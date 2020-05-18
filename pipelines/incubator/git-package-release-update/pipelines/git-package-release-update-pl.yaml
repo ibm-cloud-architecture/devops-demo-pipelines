@@ -14,7 +14,7 @@
 apiVersion: tekton.dev/v1alpha1
 kind: Pipeline
 metadata:
-  name: package-release-update-pl
+  name: git-package-release-update-pl
   namespace: kabanero
   author: Oscar I. Ricaud
   date: 04/22/20
