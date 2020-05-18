@@ -11,9 +11,6 @@ spec:
       - name: asuh-image
         default: googlefu/apic_compiler:v3-amd64
         type: string
-#      - name: image-registry-publish
-#        description: determines if we want to push the image to a registry
-#        default: 'false'
       - name: pipeline-version
         type: string
         description: This is the pipeline version we are uploading to artifactory

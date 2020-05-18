@@ -1,9 +1,9 @@
 ## Table of Contents
   * [Introduction](#introduction)
   * [Pre-requisites](#pre-requisites)
-  * [Host pipelines on Artifactory](#host-pipelines-on-artifactory)
-  * [Host pipelines on Git Manually](#host-pipelines-on-git-manually)
-  * [Host pipelines on Git Automated](#host-pipelines-on-git-automated)
+  * [Deploy pipelines on Artifactory](#deploy-pipelines-on-artifactory)
+  * [Deploy pipelines on Git Manually](#deploy-pipelines-on-git-manually)
+  * [Deploy pipelines on Git Automated](#deploy-pipelines-on-git-automated)
   * [Deploy pipelines without version control](#deploy-pipelines-without-version-control)
 # Introduction
 This repository includes 3 directories, `experimental`(pipelines that are not production-ready and are considered,
@@ -30,11 +30,27 @@ does a `sonar-scan` for code coverage.
     + [`Openshift 4.3.5 with CloudPak for Apps`](https://www.ibm.com/cloud/cloud-pak-for-applications)
     + [`tekton cli`](https://github.com/tektoncd/cli)
     
-# Host pipelines on Artifactory
+# Deploy pipelines on Artifactory
+### Pre-reqs
+You need to deploy [Artifactory](https://github.com/ibm-cloud-architecture/gse-devops/tree/master/cloudpak-for-integration-tekton-pipelines#artifactory) on your openshift cluster
 
-# Host pipelines on Git (Manually)
+You need to generate an [API Key](https://www.jfrog.com/confluence/display/JFROG/User+Profile). Then you need to go to
+[artifactory-config.yaml](configmaps/artifactory-config.yaml) and update the `artifactory_key`. Once done, run the following
+commands:
 
-# Host pipelines on Git (Automated)
+```bash
+oc project kabanero
+oc apply -f artifactory-config.yaml
+```
+
+Then go to [pipelines](pipelines) make any modifications you want to do to any of the pipelines, or include your own.
+If you do include your pipelines, use the [skeleton](pipelines/skeleton) to add your modified pipelines, tasks,
+bindings, and templates.
+
+
+# Deploy pipelines on Git (Manually)
+
+# Deploy pipelines on Git (Automated)
 ### Pre-reqs
 You need to create a github 
 [token](https://help.github.com/en/github/authenticating-to-github/creating-a-personal-access-token-for-the-command-line)
@@ -73,9 +89,28 @@ git push
 Now is the time to make any changes you wish to make, or you can use the custom pipelines we have provided for you.
 
 
-You need to create a webhook
-
 [![asciicast](https://asciinema.org/a/315675.svg)](https://asciinema.org/a/315675)
+
+# Create a tekton webhook 
+### Pre-reqs
+You need to create an access token on the tekton dashboard or cli in the kabanero namespace.
+Earlier you created a github token on the github dashboard. You will need to get that token or generate another one and 
+paste it below.
+![](gifs/access-token.gif)
+
+Webhook Settings:
+
+        Name: devops-demo-kabanero-pipelines
+        Repistory-url: your forked repo url goes here
+        Access Token: Token you generated previously 
+
+Target Pipeline Settings
+        
+        Namespace: kabanero
+        Pipeline: Choose artifactory-package-release-update-pl or git-package-release-update-pl
+        Service Account: Pipeline
+        Docker Registry: us.icr.io/project-name or docker.hub.io/projectname
+        
 
 # Deploy pipelines without Version Control 
 You can but not recommended non-version control your pipelines by running the following command
