@@ -1,10 +1,10 @@
 ## Table of Contents
   * [Introduction](#introduction)
   * [Pre-requisites](#pre-requisites)
-  * [Deploy pipelines on Artifactory](#deploy-pipelines-on-artifactory)
-  * [Deploy pipelines on Git Manually](#deploy-pipelines-on-git-manually)
-  * [Deploy pipelines on Git Automated](#deploy-pipelines-on-git-automated)
-  * [Deploy pipelines without version control](#deploy-pipelines-without-version-control)
+  * [Host pipelines on Artifactory](#host-pipelines-on-artifactory)
+  * [Host pipelines on Git Manually](#host-pipelines-on-git-manually)
+  * [Host pipelines on Git Automated](#host-pipelines-on-git-automated)
+  * [Host pipelines without version control](#host-pipelines-without-version-control)
   * [Create tekton webhook](#create-a-tekton-webhook)
   * [Package pipelines](#package-pipelines)
   
@@ -33,7 +33,7 @@ does a `sonar-scan` for code coverage.
     + [`Openshift 4.3.5 with CloudPak for Apps`](https://www.ibm.com/cloud/cloud-pak-for-applications)
     + [`tekton cli`](https://github.com/tektoncd/cli)
     
-# Deploy pipelines on Artifactory
+# Host pipelines on Artifactory
 ### Pre-reqs
 You need to deploy [Artifactory](https://github.com/ibm-cloud-architecture/gse-devops/tree/master/cloudpak-for-integration-tekton-pipelines#artifactory) on your openshift cluster
 
@@ -59,7 +59,7 @@ You could also manually trigger your pipelines
 
 Where the `git-source` is defined as the pipeline resource with key [url] and value [github repo url] 
 
-# Deploy pipelines on Git (Manually)
+# Host pipelines on Git (Manually)
 You will first need to package your pipelines. To do that go to the [package-pipelines](#package-pipelines)
 After you are done with that step you will notice a new file named `default-kabanero-pipelines.tar.gz` under
 `ci/assets` which includes your pipelines along with their corresponding checksum values. You will use this file to upload
@@ -69,7 +69,7 @@ But first, create a new repository i.e named `pipeline-server` on github and fol
 ![](gifs/create-release-git.gif)
 
 
-# Deploy pipelines on Git (Automated)
+# Host pipelines on Git (Automated)
 ### Pre-reqs
 You need to create a github 
 [token](https://help.github.com/en/github/authenticating-to-github/creating-a-personal-access-token-for-the-command-line)
