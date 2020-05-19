@@ -1,6 +1,9 @@
 apiVersion: tekton.dev/v1alpha1
 kind: Task
 metadata:
+  annotations:
+    manifestival: new
+  generation: 6
   name: gitops
   namespace: kabanero
 spec:
@@ -23,49 +26,28 @@ spec:
         - >
           set -e
 
-
-          # Export project name
-
-          echo "this is my first run!"
-
           # echo "applicationImage: bbb" > randomtext.txt
 
-
           # clone repo
-
-          git clone
-          https://github.com/ibm-cloud-architecture/devops-demo-dev-env.git
+          git clone https://github.com/ibm-cloud-architecture/devops-demo-dev-env.git
 
           cd devops-demo-dev-env
 
-
           # update value for key applicationImage
-
-          sed -i "/applicationImage: /c\applicationImage:
-          $(inputs.resources.image.url)" ./app-deploy.yaml
+          sed -i '/image:/c\        image: $(inputs.resources.image.url)' ./deployment.yaml
 
 
           # verify the value for key applicationImage got updated
+          cat ./deployment.yaml | grep "image"
 
-          cat ./app-deploy.yaml | grep "applicationImage"
-
-
-          # push changes to git
-
-          # This email is not used and it not valid, you can ignore but git
-          requires it
-
+          # This email is not used and it not valid, you can ignore but git requires it
           git config --global user.email "user@example.com"
-
           git config --global user.name "user"
 
-
           echo $(inputs.resources.source.path)
-
+          # push changes to git
           git add .
-
-          git commit -m "Updated app-deploy.yaml"
-
+          git commit -m "Updated deployment.yaml"
           git push
       command:
         - /bin/bash
