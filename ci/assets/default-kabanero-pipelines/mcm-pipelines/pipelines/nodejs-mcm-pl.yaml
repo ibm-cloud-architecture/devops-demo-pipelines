@@ -1,0 +1,77 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Pipeline
+metadata:
+  name: nodejs-mcm-pl
+  namespace: kabanero
+spec:
+  params:
+    - description: The event type
+      name: event-type
+      type: string
+    - description: The event ref
+      name: event-ref
+      type: string
+  resources:
+    - name: git-source
+      type: git
+    - name: docker-image
+      type: image
+  tasks:
+    - name: test # build, test, publish-pact, verify-pact, sonar-scan
+      resources:
+        inputs:
+          - name: source
+            resource: git-source
+      taskRef:
+        kind: Task
+        name: igc-nodejs-test
+    - name: build-push-task # imagename-lowercase, build and pushes
+      resources:
+        inputs:
+          - name: git-source
+            resource: git-source
+        outputs:
+          - name: docker-image
+            resource: docker-image
+          - name: git-source
+            resource: git-source
+      runAfter:
+        - test
+      taskRef:
+        kind: Task
+        name: nodejs-build-push-task
+    - name: image-scan-task # lowercase image, mount image, scan image
+      resources:
+        inputs:
+          - name: git-source
+            resource: git-source
+          - name: docker-image
+            resource: docker-image
+      runAfter:
+        - build-push-task
+      taskRef:
+        kind: Task
+        name: nodejs-image-scan-task
+    - name: gitops # clone ops repo and update repo app-deploy.yaml file
+      resources:
+        inputs:
+          - name: source
+            resource: git-source
+          - name: image
+            resource: docker-image
+      runAfter:
+        - image-scan-task
+      taskRef:
+        name: gitops
+    - name: health-check # clone ops repo and update repo app-deploy.yaml file
+      resources:
+        inputs:
+          - name: source
+            resource: git-source
+          - name: image
+            resource: docker-image
+      runAfter:
+        - image-scan-task
+      taskRef:
+        name: health-check-task
+

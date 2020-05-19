@@ -1,0 +1,107 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Task
+metadata:
+  generation: 1
+  name: igc-nodejs-test
+  namespace: kabanero
+spec:
+  inputs:
+    resources:
+      - name: source
+        type: git
+    params:
+      - default: 'node:12-stretch'
+        name: js-image
+        type: string
+  stepTemplate:
+    envFrom:
+      - configMapRef:
+          name: pactbroker-config
+          optional: true
+    name: ''
+    resources: {}
+  steps:
+    - args:
+        - '-c'
+        - |
+          set -e
+          npm install
+          if [ -d client ]; then
+            pushd client
+            npm install
+            popd
+          fi
+          npm run build --if-present
+      command:
+        - /bin/bash
+      image: $(inputs.params.js-image)
+      name: build
+      resources: {}
+      workingDir: $(inputs.resources.source.path)
+    - args:
+        - '-c'
+        - |
+          set -e
+          CI=true npm test
+      command:
+        - /bin/bash
+      image: $(inputs.params.js-image)
+      name: test
+      resources: {}
+      workingDir: $(inputs.resources.source.path)
+    - args:
+        - '-c'
+        - |
+          set -e
+          if [ -n "${PACTBROKER_URL}" ]; then
+              npm run pact:publish --if-present
+          else
+              echo "Skipping Pact publish"
+          fi
+      command:
+        - /bin/bash
+      image: $(inputs.params.js-image)
+      name: publish-pact
+      resources: {}
+      workingDir: $(inputs.resources.source.path)
+    - args:
+        - '-c'
+        - |
+          set -e
+          if [ -n "${PACTBROKER_URL}" ]; then
+              npm run pact:verify --if-present
+          else
+              echo "Skipping Pact publish"
+          fi
+      command:
+        - /bin/bash
+      image: $(inputs.params.js-image)
+      name: verify-pact
+      resources: {}
+      workingDir: $(inputs.resources.source.path)
+    - args:
+        - '-c'
+        - |
+          set -e
+          if [ -n "${SONARQUBE_URL}" ]; then
+              npm install ;
+              node sonar-project.js -X
+          else
+              echo "Skipping Sonar Qube step"
+          fi
+      command:
+        - /bin/bash
+      env:
+        - name: SONAR_USER_HOME
+          value: /workspace/git-source
+      envFrom:
+        - configMapRef:
+            name: sonarqube-config
+            optional: true
+        - secretRef:
+            name: sonarqube-access
+            optional: true
+      image: 'node:12-stretch'
+      name: sonar-scan
+      resources: {}
+      workingDir: $(inputs.resources.source.path)
