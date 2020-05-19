@@ -1,0 +1,60 @@
+# The responsibility of this pipeline is to package kabanero pipelines,
+# release them to github and create and update the kabanero custom resource to
+# point to x release.
+
+# The only constant is change.
+# Pipelines will grow and change over time and hence we need a place to version
+# control pipelines.
+
+# e.g
+# xyz-pipeline grows over time and exists in the xyz-pipeline github repo
+# you would then use this pipeline in the kabanero namespace and create a web-
+# hook for the xyz-pipeline repo and use the package-release-update-pl pipeline
+# to deploy your xyz-pipeline repo to kabanero
+apiVersion: tekton.dev/v1alpha1
+kind: Pipeline
+metadata:
+  name: git-package-release-update-pl
+  namespace: kabanero
+  author: Oscar I. Ricaud
+  date: 04/22/20
+spec:
+  params:
+    - name: registry
+      description: Specify the registry url.
+      default: docker.io
+    - name: image-registry-publish
+      description: determines if we want to push the image to a registry
+      default: 'true'
+    - name: index-image
+      description: name of image
+      default: healthcheck-pipeline
+    - name: event-type
+      description: The event type
+      type: string
+    - name: event-ref
+      description: The event ref
+      type: string
+  resources:
+    - name: git-source
+      type: git
+    - name: docker-image
+      type: image
+  tasks:
+    - name: create-release-for-git
+      resources:
+        inputs:
+          - name: source
+            resource: git-source
+          - name: image
+            resource: docker-image
+      params:
+        - name: registry
+          value: $(params.registry)
+        - name: index-image
+          value: $(params.index-image)
+        - name: image-registry-publish
+          value: $(params.image-registry-publish)
+      taskRef:
+        kind: Task
+        name: create-release-for-git-task

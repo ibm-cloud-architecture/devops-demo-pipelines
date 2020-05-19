@@ -132,7 +132,6 @@
       "namespace" : "kabanero",
       "uid" : "0f8d15ce-1e96-4a2c-99f3-6d25e30bd803",
       "name" : "kabanero",
-      "resourceVersion" : "6911873",
       "finalizers" : [
          "kabanero.io.kabanero-operator"
       ]

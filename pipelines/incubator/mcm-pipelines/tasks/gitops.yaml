@@ -1,9 +1,6 @@
 apiVersion: tekton.dev/v1alpha1
 kind: Task
 metadata:
-  annotations:
-    manifestival: new
-  generation: 6
   name: gitops
   namespace: kabanero
 spec:
@@ -42,7 +39,9 @@ spec:
 
           # This email is not used and it not valid, you can ignore but git requires it
           git config --global user.email "user@example.com"
+
           git config --global user.name "user"
+
 
           echo $(inputs.resources.source.path)
           # push changes to git

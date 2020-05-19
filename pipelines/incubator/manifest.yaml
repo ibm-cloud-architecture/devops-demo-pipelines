@@ -1,28 +1,16 @@
 contents:
-- file: package-release-update/tasks/update-kabanero-cr-task.yaml
-  sha256: 74a685853ee33da40509b4d937087137e4bcbe41471cfea4adde0a9ea4989677
-- file: package-release-update/tasks/package-pipelines-task.yaml
-  sha256: 6ad0468531820d1b9faf1cef92a580bd33b1ce1e167a8a70a44debb4e15a6b75
-- file: package-release-update/tasks/create-release-for-git-task.yaml
-  sha256: 080496b749dd4c2d03e47019ad82bf7f003da1a8b451b89b637f39670edb7590
-- file: package-release-update/template/package-release-update-pl-template.yaml
-  sha256: ecc4f20658e1df90d3d935af04a42d5e346984ed5e7f575528678dee971c65c2
-- file: package-release-update/pipelines/package-release-update-pl.yaml
-  sha256: c44a4adf8399a91e177e4add068509a2753c9c1d99a3e8a51b17acfcc5de8c6d
-- file: package-release-update/bindings/package-release-update-pl-pullrequest-binding.yaml
-  sha256: 8eb5eb7172c0758172921315f09c1e18c31ff8f7579caef9193835965383d86e
-- file: package-release-update/bindings/package-release-update-pl-push-binding.yaml
-  sha256: d4bbb54450848660bd281e6db2d4dc9c24fa63bf2f37468c5a53f4a407a47eaa
 - file: mcm-pipelines/tasks/igc-nodejs-test.yaml
   sha256: e9c0ea05eaf094d4286f4da1d45327e172609cdc1ee4c29e546d57210ad03baf
 - file: mcm-pipelines/tasks/nodejs-build-push-task.yaml
   sha256: 9e74aba86ada309f8c4461ed8f14578e27f790e83fabd11f689a55908e45dede
 - file: mcm-pipelines/tasks/nodejs-image-scan-task.yaml
   sha256: 6a2fe0259b40a7fcd4cd4e59167c8a66c1ef7f8e902ce175505a5583490b35b4
-- file: mcm-pipelines/tasks/clone-ops-update-repo-task.yaml
-  sha256: 5fcb5cc54783af10141c09cb1a826a1519e8f067ccf985509a312740b83f00d2
+- file: mcm-pipelines/tasks/gitops.yaml
+  sha256: 626fb5cdbc0793fe7dd00814f2383b98b61181db1dfbb7f577558b0787964669
+- file: mcm-pipelines/tasks/health-check-task.yaml
+  sha256: ba4e2ded9d61ea81787668033ee147c7acb560da4fc31686fd5abac6c0672605
 - file: mcm-pipelines/pipelines/nodejs-mcm-pl.yaml
-  sha256: 5b89c00f990f8c4c0a2e1872753a0920989eeddac119c919022cabb26e1d256a
+  sha256: 092dd724a3e9c9e95db365e379de0ae3b3f184e4ba29ea5deac5fd9fee24a237
 - file: mcm-pipelines/templates/nodejs-mcm-pl-template.yaml
   sha256: 54bc2ab21a1e0f064058c0d749619c0f9d92faf38a194200310d0767650b28ad
 - file: mcm-pipelines/bindings/nodejs-mcm-pl-push-binding.yaml

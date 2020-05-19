@@ -1,0 +1,275 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Task
+metadata:
+  name: create-release-for-git-task
+  namespace: kabanero
+  author: Oscar I. Ricaud
+  date: 04/21/20
+spec:
+  inputs:
+    params:
+      - name: asuh-image
+        default: googlefu/apic_compiler:v3-amd64
+        type: string
+      - name: registry
+        description: Specify the name of the project being built.
+        default: docker.io
+      - name: image-registry-publish
+        description: determines if we want to push the image to a registry
+        default: 'false'
+      - name: index-image
+        description: name of image
+        default: healthcheck-pipeline
+    resources:
+      - name: source
+        type: git
+      - name: image
+        type: image
+  steps:
+    - name: setup-environment
+      image: $(inputs.params.asuh-image)
+      script: |
+
+        # generate your zip file
+        cd ci
+        ./package.sh
+
+      env:
+        - name: IMAGE_REGISTRY_PUBLISH
+          value: 'false'
+        - name: REGISTRY
+          value: docker.io
+      resources: {}
+      workingDir: $(inputs.resources.source.path)
+
+    - name: create-release
+      image: $(inputs.params.asuh-image)
+      args:
+        - '-c'
+        - |
+          set -e
+
+          # install packages
+          apt-get install -y jq curl git bc
+          
+          # This function creates a json file to be used later in the curl call
+          get_release_info() {
+            {
+              cat <<EOF
+            {
+              "tag_name": "$new_version",
+              "target_commitish": "master",
+              "name": "$new_version",
+              "body": "The pipeline manager deployed this release",
+              "draft": false,
+              "prerelease": false
+            }
+          EOF
+            }
+          }
+
+          echo "REPO_ORG: $REPO_ORG"
+          echo "REPO_NAME: $REPO_NAME"
+
+          curl -s https://api.github.com/repos/$REPO_ORG/$REPO_NAME/releases/latest > repo_details.json
+
+          cat ./repo_details.json
+
+          current_version=$(jq --raw-output '.tag_name' ./repo_details.json)
+
+          echo $current_version
+
+          if [ "$current_version" = null ]; then
+            current_version=1.0
+            new_version=$current_version
+          
+          else
+            remove_first_char="${current_version:1}"
+            new_version=$(bc <<< "${current_version} + 1.0")
+          fi
+          
+          echo "new version: $new_version"
+
+          REPO_FULL_NAME=$REPO_ORG/$REPO_NAME
+          echo "REPO_FULL_NAME: $REPO_FULL_NAME"
+          curl --data "$(get_release_info)" "https://api.github.com/repos/$REPO_FULL_NAME/releases?access_token=$GITHUB_TOKEN"
+
+          echo "DONE"
+        
+      env:
+        - name: GITHUB_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: oscar-ricaud-git
+              key: password
+        - name: IMAGE_REGISTRY_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: oscar-ricaud-docker
+              key: username
+        - name: IMAGE_REGISTRY_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: oscar-ricaud-docker
+              key: password
+        - name: REPO_ORG
+          value: oiricaud
+        - name: REPO_NAME
+          value: pipeline-server
+        - name: REGISTRY
+          value: $(inputs.params.registry)
+        - name: IMAGE_REGISTRY_PUBLISH
+          value: $(inputs.params.image-registry-publish)
+      resources: {}
+      workingDir: $(inputs.resources.source.path)
+
+    - name: upload-asset-to-release
+      image: $(inputs.params.asuh-image)
+      args:
+        - '-c'
+        - |
+          set -e
+          apt-get install -y jq curl
+
+          CONFIG=$@
+          AUTH="Authorization: token $GITHUB_TOKEN"
+          curl -s https://api.github.com/repos/$REPO_ORG/$REPO_NAME/releases/latest > repo_details.json
+
+          cat ./repo_details.json
+
+          current_version=$(jq --raw-output '.tag_name' ./repo_details.json)
+          echo $current_version
+
+          GH_TAGS="https://api.github.com/repos/$REPO_ORG/$REPO_NAME/releases/tags/$current_version"
+
+          filename=./ci/assets/default-kabanero-pipelines.tar.gz
+          set -e xargs="$(which gxargs || which xargs)"
+
+          # Validate settings.
+          [ "$TRACE" ] && set -x
+
+          for line in $CONFIG; do
+            eval "$line"
+          done
+
+          if [[ "$current_version" == 'LATEST' ]]; then
+            GH_TAGS="https://api.github.com/repos/$REPO_ORG/$REPO_NAME/releases/latest"
+          fi
+
+          GH_REPO="https://api.github.com/repos/$REPO_ORG/$REPO_NAME"
+
+          # Validate token.
+          curl -o /dev/null -sH "$AUTH" $GH_REPO || {
+            echo "Error: Invalid repo, token or network issue!"
+            exit 1
+          }
+
+          response=$(curl -sH "$AUTH" $GH_TAGS)
+
+          # Get ID of the asset based on given filename.
+          eval $(echo "$response" | grep -m 1 "id.:" | grep -w id | tr : = | tr -cd '[[:alnum:]]=')
+          [ "$id" ] || {
+            echo "Error: Failed to get release id for tag: $tag"
+            echo "$response" | awk 'length($0)<100' >&2
+            exit 1
+          }
+
+          GH_ASSET="https://uploads.github.com/repos/$REPO_ORG/$REPO_NAME/releases/$id/assets?name=$(basename $filename)"
+          curl "$GITHUB_OAUTH_BASIC" --data-binary @"$filename" -H "Authorization: token $GITHUB_TOKEN" -H "Content-Type: application/octet-stream" "$GH_ASSET"
+
+      env:
+        - name: GITHUB_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: oscar-ricaud-git
+              key: password      
+        - name: REPO_ORG
+          value: oiricaud
+        - name: REPO_NAME
+          value: pipeline-server
+        - name: IMAGE_REGISTRY_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: oscar-ricaud-docker
+              key: username
+        - name: IMAGE_REGISTRY_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: oscar-ricaud-docker
+              key: password
+
+        - name: REGISTRY
+          value: $(inputs.params.registry)
+        - name: IMAGE_REGISTRY_PUBLISH
+          value: $(inputs.params.image-registry-publish)
+      resources: {}
+      workingDir: $(inputs.resources.source.path)
+
+    - name: update-kabanero-cr
+      image: $(inputs.params.asuh-image)
+      script: |
+        #!/usr/bin/env bash
+        # install packages
+        apt-get install -y jq curl git bc wget
+
+        oc project kabanero
+
+        oc get kabaneros kabanero -o json > ./json/temp.json
+      
+        # print repo details
+        cat ./repo_details.json
+
+        current_version=$(jq --raw-output '.tag_name' ./repo_details.json)
+
+        host_url=https://github.com/$REPO_ORG/$REPO_NAME/releases/download/$current_version/default-kabanero-pipelines.tar.gz
+        name_of_pipeline=testing_pipeline
+        tar_file_name=default-kabanero-pipelines.tar.gz
+
+        # save the tar file locally
+        wget $host_url
+
+        # generate sha256 on the zip file
+        get_sha=$(shasum -a 256 ./$tar_file_name | grep -Eo '^[^ ]+' )
+
+        echo "sha256 value: "$get_sha
+
+        # add double quotes to the sha256
+        new_sha=\"${get_sha}\"
+
+        # get the add_pipeline_template.json and replace the url, id and sha256 values and store it in another file
+        jq '.https.url="'$host_url'" | .id="'$name_of_pipeline'" | .sha256="'$get_sha'"'  ./json/add_pipeline_template.json > ./json/add_pipeline_modified_template.json
+
+        cat ./json/add_pipeline_modified_template.json
+
+        rm ./default-kabanero-pipelines.tar.gz
+
+        # Get the number of pipelines we currently have on the kabanero CR and increment by 1
+        num_of_pipelines=$(jq '.spec.stacks.pipelines | length' ./json/kabanero.json)+1
+
+        # add the add_pipeline_modified_template.json to the kabanero.json file
+        result=$(jq '.spec.stacks.pipelines['$num_of_pipelines']='"$(cat ./json/add_pipeline_modified_template.json)"'' ./json/kabanero.json)
+
+        # prettify and store the result in another file
+        echo $result | json_pp > ./json/kabanero-2.json
+
+        cd ./json
+
+        cat ./kabanero-2.json
+
+        # apply your new changes to the kabanero custom resource
+        # oc apply -f kabanero-2.json
+
+
+      env:
+        - name: GITHUB_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: oscar-ricaud-git
+              key: password
+        - name: REPO_ORG
+          value: oiricaud
+        - name: REPO_NAME
+          value: pipeline-server
+        - name: REGISTRY        
+      resources: {}
+      workingDir: $(inputs.resources.source.path)
