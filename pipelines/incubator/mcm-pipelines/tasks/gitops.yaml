@@ -38,7 +38,7 @@ spec:
 
 
           # verify the value for key applicationImage got updated
-          cat ./deployment.yaml | grep "applicationImage"
+          cat ./deployment.yaml | grep "image"
 
           # This email is not used and it not valid, you can ignore but git requires it
           git config --global user.email "user@example.com"
