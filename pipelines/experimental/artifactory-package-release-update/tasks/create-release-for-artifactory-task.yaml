@@ -40,6 +40,11 @@ spec:
           set -e
           ./scripts/upload-asset-to-artifactory.sh
       env:
+        - name: api_key
+          valueFrom:
+            secretKeyRef:
+              name: artifactory-access
+              key: ARTIFACTORY_ENCRYPT
         - name: PIPELINE_VERSION
           value: $(inputs.params.pipeline-version)
         - name: REPO_NAME
