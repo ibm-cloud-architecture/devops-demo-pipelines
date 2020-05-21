@@ -67,14 +67,12 @@ spec:
         - |
           set -e
 
-          #install packages
+          # install packages
           apt-get install -y jq
 
           oc project kabanero
 
           oc get kabanero -o json > ./json/kabanero.json
-
-          # cat ./json/kabanero.json
 
           host_url=$artifactory_repo_path/$filename-$pipeline_version.tar.gz
 
@@ -82,22 +80,13 @@ spec:
           get_sha=$(cat ./256.txt | head -n 1)
 
           # get the add_pipeline_template.json and replace the url, id and sha256 values and store it in another file
-          jq '.https.url="'$host_url'" | .id="'$kabanero-pipeline-id'" | .sha256="'$get_sha'"' ./json/add_pipeline_template.json > ./json/add_pipeline_modified_template.json
-
-          # Get the number of pipelines we currently have on the kabanero CR and increment by 1
-          num_of_pipelines=$(jq '.items[].spec.stacks.pipelines | length' ./json/kabanero.json)
-
-          # add the add_pipeline_modified_template.json to the kabanero.json file
-          jq '.items[].spec.stacks.pipelines['$num_of_pipelines']='"$(cat ./json/add_pipeline_modified_template.json)"'' ./json/kabanero.json | json_pp
-
-          # cat ./json/kabanero.json
-
-          # oc delete kabanero kabanero
-          # apply your new changes to the kabanero custom resource
-          # oc apply -f ./json/kabanero.json
+          jq --compact-output '.https.url="'$host_url'" | .id="'$kabanero_pipeline_id'" | .sha256="'$get_sha'"' ./json/add_pipeline_template.json > ./json/add_pipeline_modified_template.json
 
           echo "applying the new pipeline custom resource..."
 
+          oc patch Kabanero/kabanero -p '{"spec":{"stacks":{"pipelines":['$(cat ./json/add_pipeline_modified_template.json)']}}}' --type=merge --loglevel=9
+
+          echo "we are done"
 
       env:
         - name: pipeline_version
@@ -106,7 +95,7 @@ spec:
           value: https://artifactory-tools.devops-gse-state-288036-0143c5dd31acd8e030a1d6e0ab1380e3-0000.tor01.containers.appdomain.cloud/artifactory/pipeline-server
         - name: filename
           value: default-kabanero-pipelines
-        - name: kabanero-pipeline-id
-          value: pipeline-manager
+        - name: kabanero_pipeline_id
+          value: pipeline-manager-v1
       resources: {}
       workingDir: $(inputs.resources.source.path)
