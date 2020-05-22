@@ -1,11 +1,11 @@
 ## Table of Contents
   * [Extend, Build & Deploy Kabanero Pipelines](#extend-build--deploy-kabanero-pipelines)
-  * [Introduction](#introduction)
+  * [Introduction](#overview)
   * [Pre-requisites](#pre-requisites)
   * [Package pipelines](#package-pipelines)
   * [Host packaged-pipelines on Artifactory](#host-pipelines-on-artifactory)
   * [Host packaged-pipelines on Git Manually](#host-pipelines-on-git-manually)
-  * [Host pipelines on Git Automated](#host-pipelines-on-git-automated)
+  * [Deploy packaged pipelines onto the kabanero namespace](#deploy-packaged-pipelines-onto-kabanero-namespace)
   * [Host pipelines without version control](#deploy-pipelines-without-version-control)
   * [Create tekton webhook](#create-a-tekton-webhook)
   * [Definitions](#definitions)
@@ -22,8 +22,8 @@ You will learn how to package, host your pipelines in different environments suc
 these pipelines to automate the process of updating the [kabanero custom resource](https://kabanero.io/docs/ref/general/configuration/kabanero-cr-config.html) 
 to a respective host where your Kabanero pipelines exist.
 
-# Introduction
-This repository includes 3 directories, `experimental`(pipelines that are not production-ready and are considered,
+# Overview
+This repository includes 3 [directories](pipelines), `experimental`(pipelines that are not production-ready and are considered,
 proof of concept),`incubator`(pipelines that are not production-ready and require further development to satisfy the stable criteria.) 
 and `stable`(pipelines that are production ready).
 
