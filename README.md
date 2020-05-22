@@ -1,6 +1,6 @@
 ## Table of Contents
   * [Extend, Build & Deploy Kabanero Pipelines](#extend-build--deploy-kabanero-pipelines)
-  * [Introduction](#overview)
+  * [Overview](#overview)
   * [Pre-requisites](#pre-requisites)
   * [Package pipelines](#package-pipelines)
   * [Host packaged-pipelines on Artifactory](#host-pipelines-on-artifactory)
