@@ -1,6 +1,6 @@
 ## Table of Contents
+  * [Problem Statement](#problem-statement)
   * [Introduction](#introduction)
-  * [Definitions](#definition)
   * [Pre-requisites](#pre-requisites)
   * [Package pipelines](#package-pipelines)
   * [Host packaged-pipelines on Artifactory](#host-pipelines-on-artifactory)
@@ -8,7 +8,20 @@
   * [Host pipelines on Git Automated](#host-pipelines-on-git-automated)
   * [Host pipelines without version control](#host-pipelines-without-version-control)
   * [Create tekton webhook](#create-a-tekton-webhook)
+  * [Definitions](#definitions)
   
+  
+# Problem Statement
+Developers that use [Kabanero](https://kabanero.io/) pipelines often times have to extend these pipelines to do certain tasks that do not come
+in the out-of-the-box Kabanero pipelines. These tasks may include code coverage, or use third party applications like
+[Pact Broker](https://docs.pact.io/pact_broker), [Sonarqube](https://www.sonarqube.org/) or [Artifactory](https://jfrog.com/artifactory/)
+to full-fill software requirements. Currently, there are not many methods to manage and version control your Kabanero 
+pipelines, and the goal of this repository is to help you get going.
+
+You will learn how to package, host your pipelines in different environments such as Git or Artifactory and use
+these pipelines to automate the process of updating the kabanero custom resource to a respective host where your 
+kabanero pipelines exist.
+
 # Introduction
 This repository includes 3 directories, `experimental`(pipelines that are not production-ready and are considered,
 proof of concept),`incubator`(pipelines that are not production-ready and require further development to satisfy the stable criteria.) 
@@ -25,20 +38,7 @@ is to get you going in managing your custom made pipelines.
 
 The `mcm-pipelines` contains the tasks of building, testing, pushing an image and a healthcheck of a nodejs application. It also
 does a `sonar-scan` for code coverage.
-
-# Definitions 
-    Artifactory
-    Github Releases
-    Docker - a set of platform as a service products that uses OS-level virtualization to deliver software in packages called containers.
-    Openshift - is a family of containerization software developed by Red Hat.
-    Tekton - a powerful yet flexible Kubernetes-native open-source framework for creating continuous integration and delivery (CI/CD) systems
-    Tekton Events - An EventListener sets up a Kubernetes Service which can be exposed as an OpenShift Route 
-    Tekton TriggerBindings - enable you to capture fields from an event and store them as parameters. 
-    Tekton Templates - defines a Template for how a Pipeline should be run in reaction to events
-    Tekton Pipelines - is an open source project that you can use to configure and run continuous integration and Continuous Delivery pipelines within a Kubernetes cluster.
-    Tekton Steps - A Step is a reference to a container image that executes a specific tool on a specific input and produces a specific output.
-    Tekton Tasks - is a collection of Steps that you define and arrange in a specific order of execution as part of your continuous integration flow. 
-    
+   
 # Pre-requisites
 * Install the following CLI's on your laptop/workstation:
 
@@ -229,3 +229,17 @@ You can but not recommended non-version control your pipelines by running the fo
 oc apply --recursive --filename pipelines/{pick expiermental, incubator or stable}
 ```
 
+
+# Definitions 
+    Artifactory
+    Github Releases
+    Docker - a set of platform as a service products that uses OS-level virtualization to deliver software in packages called containers.
+    Openshift - is a family of containerization software developed by Red Hat.
+    Tekton - a powerful yet flexible Kubernetes-native open-source framework for creating continuous integration and delivery (CI/CD) systems
+    Tekton Events - An EventListener sets up a Kubernetes Service which can be exposed as an OpenShift Route 
+    Tekton TriggerBindings - enable you to capture fields from an event and store them as parameters. 
+    Tekton Templates - defines a Template for how a Pipeline should be run in reaction to events
+    Tekton Pipelines - is an open source project that you can use to configure and run continuous integration and Continuous Delivery pipelines within a Kubernetes cluster.
+    Tekton Steps - A Step is a reference to a container image that executes a specific tool on a specific input and produces a specific output.
+    Tekton Tasks - is a collection of Steps that you define and arrange in a specific order of execution as part of your continuous integration flow. 
+    
