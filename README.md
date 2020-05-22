@@ -27,9 +27,9 @@ This repository includes 3 [directories](pipelines), `experimental`(pipelines th
 proof of concept),`incubator`(pipelines that are not production-ready and require further development to satisfy the stable criteria.) 
 and `stable`(pipelines that are production ready).
 
-This repository also contains multiple pipelines such as [artifactory-package-release-update](pipelines/experimental/artifactory-package-release-update), 
+This repository also contains multiple [/pipelines/](./pipelines/incubator) such as [artifactory-package-release-update](pipelines/experimental/artifactory-package-release-update), 
 [git-package-release-update](./pipelines/experimental/git-package-release-update) and [mcm-pipelines](pipelines/incubator/mcm-pipelines).
-You can view all [/pipelines/](./pipelines/incubator). The repository also contains a [./run.sh](./run.sh) script file which helps automate the process of deploying your pipelines on git.
+ The repository also contains a [./run.sh](./run.sh) script file which helps automate the process of deploying your pipelines as git releases.
 
 There are multiple approaches on packaging and releasing your pipelines. Both the `artifactory-package-release-update` & `git-package-release-update` pipelines do the same thing, package, manage
 and deploy your custom pipelines, except hosted in different environments. For example, the `artifactory-package-release-update` pipeline, packages your
