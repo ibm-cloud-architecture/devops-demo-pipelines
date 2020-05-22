@@ -143,12 +143,14 @@ Go to section [Create tekton webhook](#create-a-tekton-webhook) to create your w
 Once you are done with that go to your forked repository and make a change and your tekton dashboard should create a 
 new pipeline run as shown below:
 
-[artifactory-package-release-update-pl-rn.png](img/artifactory-package-release-update-pl-rn.png)
-
 You could also manually trigger your pipelines
 ![](gifs/artifactory-package-release-update-pl-rn.gif)
 
 Where the `git-source` is defined as the pipeline resource with key [url] and value [github repo url] 
+
+The end result should look like the following:
+
+![alt text](img/artifactory-package-release-update-pl-rn.png)
 
 # Host pipelines on Git (Manually)
 You will first need to package your pipelines. To do that go to the [package-pipelines](#package-pipelines)
