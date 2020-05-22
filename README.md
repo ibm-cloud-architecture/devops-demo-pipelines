@@ -233,8 +233,8 @@ oc apply --recursive --filename pipelines/{pick expiermental, incubator or stabl
 
 
 # Definitions 
-    Artifactory
-    Github Releases
+    Artifactory - is a Binary Repository Manager product from Jfrog.
+    Github Releases - Releases are GitHub's way of packaging and providing software to your users.  
     Docker - a set of platform as a service products that uses OS-level virtualization to deliver software in packages called containers.
     Openshift - is a family of containerization software developed by Red Hat.
     Tekton - a powerful yet flexible Kubernetes-native open-source framework for creating continuous integration and delivery (CI/CD) systems
