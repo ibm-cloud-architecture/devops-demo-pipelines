@@ -1,0 +1,101 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Task
+metadata:
+  name: create-release-for-artifactory-task
+  namespace: kabanero
+  author: Oscar I. Ricaud
+  date: 04/21/20
+spec:
+  inputs:
+    params:
+      - name: asuh-image
+        default: googlefu/apic_compiler:v3-amd64
+        type: string
+      - name: pipeline-version
+        type: string
+        description: This is the pipeline version we are uploading to artifactory
+        default: ""
+    resources:
+      - name: source
+        type: git
+  steps:
+    - name: generate-zip-file
+      image: $(inputs.params.asuh-image)
+      script: |
+
+        # generate your zip file
+        cd ci
+        ./package.sh
+
+      resources: {}
+      workingDir: $(inputs.resources.source.path)
+
+    - name: upload-asset-to-artifactory
+      image: $(inputs.params.asuh-image)
+      args:
+        - '-c'
+        - |
+          set -e
+          apt-get install -y curl
+
+          checksum_256=$(shasum -a 256 ./$filepath | grep -Eo '^[^ ]+' )
+          echo $checksum_256 > 256.txt
+          filename=default-kabanero-pipelines
+          curl -H X-Checksum-Sha256:${checksum_256} -H "X-JFrog-Art-Api:$api_key" -X PUT "$artifactory_repo_path/$filename-$pipeline_version.tar.gz" -T $filepath
+
+      env:
+        - name: api_key
+          valueFrom:
+            secretKeyRef:
+              name: artifactory-access
+              key: ARTIFACTORY_ENCRYPT
+        - name: pipeline_version
+          value: $(inputs.params.pipeline-version)
+        - name: filename
+          value: default-kabanero-pipelines
+        - name: filepath
+          value: ./ci/assets/default-kabanero-pipelines.tar.gz
+        - name: artifactory_repo_path
+          value: https://artifactory-tools.devops-gse-state-288036-0143c5dd31acd8e030a1d6e0ab1380e3-0000.tor01.containers.appdomain.cloud/artifactory/pipeline-server
+      resources: {}
+      workingDir: $(inputs.resources.source.path)
+
+    - name: update-kabanero-cr
+      image: $(inputs.params.asuh-image)
+      args:
+        - '-c'
+        - |
+          set -e
+
+          # install packages
+          apt-get install -y jq
+
+          oc project kabanero
+
+          oc get kabanero -o json > ./json/kabanero.json
+
+          host_url=$artifactory_repo_path/$filename-$pipeline_version.tar.gz
+
+          #get sha256 from previous step on the zip file
+          get_sha=$(cat ./256.txt | head -n 1)
+
+          # get the add_pipeline_template.json and replace the url, id and sha256 values and store it in another file
+          jq --compact-output '.https.url="'$host_url'" | .id="'$kabanero_pipeline_id'" | .sha256="'$get_sha'"' ./json/add_pipeline_template.json > ./json/add_pipeline_modified_template.json
+
+          echo "applying the new pipeline custom resource..."
+
+          oc patch Kabanero/kabanero -p '{"spec":{"stacks":{"pipelines":['$(cat ./json/add_pipeline_modified_template.json)']}}}' --type=merge --loglevel=9
+
+          echo "we are done"
+
+      env:
+        - name: pipeline_version
+          value: $(inputs.params.pipeline-version)
+        - name: artifactory_repo_path
+          value: https://artifactory-tools.devops-gse-state-288036-0143c5dd31acd8e030a1d6e0ab1380e3-0000.tor01.containers.appdomain.cloud/artifactory/pipeline-server
+        - name: filename
+          value: default-kabanero-pipelines
+        - name: kabanero_pipeline_id
+          value: pipeline-manager-v1
+      resources: {}
+      workingDir: $(inputs.resources.source.path)
