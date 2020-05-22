@@ -1,17 +1,17 @@
 ## Table of Contents
-  * [Problem Statement](#problem-statement)
+  * [Extend, Build & Deploy Kabanero Pipelines](#extend-build--deploy-kabanero-pipelines)
   * [Introduction](#introduction)
   * [Pre-requisites](#pre-requisites)
   * [Package pipelines](#package-pipelines)
   * [Host packaged-pipelines on Artifactory](#host-pipelines-on-artifactory)
   * [Host packaged-pipelines on Git Manually](#host-pipelines-on-git-manually)
   * [Host pipelines on Git Automated](#host-pipelines-on-git-automated)
-  * [Host pipelines without version control](#host-pipelines-without-version-control)
+  * [Host pipelines without version control](#deploy-pipelines-without-version-control)
   * [Create tekton webhook](#create-a-tekton-webhook)
   * [Definitions](#definitions)
   
   
-# Problem Statement
+# Extend, Build & Deploy Kabanero Pipelines
 Developers that use [Kabanero](https://kabanero.io/) pipelines often times have to extend these pipelines to do certain tasks that do not come
 in the out-of-the-box Kabanero pipelines. These tasks may include code coverage, or use third party applications like
 [Pact Broker](https://docs.pact.io/pact_broker), [Sonarqube](https://www.sonarqube.org/) or [Artifactory](https://jfrog.com/artifactory/)
@@ -19,8 +19,8 @@ to full-fill software requirements. Currently, there are not many methods to man
 pipelines, and the goal of this repository is to help you get going.
 
 You will learn how to package, host your pipelines in different environments such as Git or Artifactory and use
-these pipelines to automate the process of updating the kabanero custom resource to a respective host where your 
-kabanero pipelines exist.
+these pipelines to automate the process of updating the [kabanero custom resource](https://kabanero.io/docs/ref/general/configuration/kabanero-cr-config.html) 
+to a respective host where your Kabanero pipelines exist.
 
 # Introduction
 This repository includes 3 directories, `experimental`(pipelines that are not production-ready and are considered,
