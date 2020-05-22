@@ -1,3 +1,14 @@
+# Extend, Build & Deploy Kabanero Pipelines
+Developers that use [Kabanero](https://kabanero.io/) pipelines often times have to extend these pipelines to do certain tasks that do not come
+in the out-of-the-box Kabanero pipelines. These tasks may include code coverage, or use third party applications like
+[Pact Broker](https://docs.pact.io/pact_broker), [Sonarqube](https://www.sonarqube.org/) or [Artifactory](https://jfrog.com/artifactory/)
+to full-fill software requirements. Currently, there are not many methods to manage and version control your Kabanero 
+pipelines, and the goal of this repository is to help you get going.
+
+You will learn how to package, host your pipelines in different environments such as Git or Artifactory and use
+these pipelines to automate the process of updating the [kabanero custom resource](https://kabanero.io/docs/ref/general/configuration/kabanero-cr-config.html) 
+to a respective host where your Kabanero pipelines exist.
+
 ## Table of Contents
   * [Extend, Build & Deploy Kabanero Pipelines](#extend-build--deploy-kabanero-pipelines)
   * [Overview](#overview)
@@ -10,18 +21,6 @@
   * [Create tekton webhook](#create-a-tekton-webhook)
   * [Definitions](#definitions)
   
-  
-# Extend, Build & Deploy Kabanero Pipelines
-Developers that use [Kabanero](https://kabanero.io/) pipelines often times have to extend these pipelines to do certain tasks that do not come
-in the out-of-the-box Kabanero pipelines. These tasks may include code coverage, or use third party applications like
-[Pact Broker](https://docs.pact.io/pact_broker), [Sonarqube](https://www.sonarqube.org/) or [Artifactory](https://jfrog.com/artifactory/)
-to full-fill software requirements. Currently, there are not many methods to manage and version control your Kabanero 
-pipelines, and the goal of this repository is to help you get going.
-
-You will learn how to package, host your pipelines in different environments such as Git or Artifactory and use
-these pipelines to automate the process of updating the [kabanero custom resource](https://kabanero.io/docs/ref/general/configuration/kabanero-cr-config.html) 
-to a respective host where your Kabanero pipelines exist.
-
 # Overview
 This repository includes 3 [directories](pipelines), `experimental`(pipelines that are not production-ready and are considered,
 proof of concept),`incubator`(pipelines that are not production-ready and require further development to satisfy the stable criteria.) 
