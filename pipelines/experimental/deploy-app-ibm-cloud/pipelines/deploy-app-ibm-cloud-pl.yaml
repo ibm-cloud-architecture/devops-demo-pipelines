@@ -1,0 +1,43 @@
+# The responsibility of this pipeline is to deploy an app
+# such as the storefront application onto ibm cloud CF.
+apiVersion: tekton.dev/v1alpha1
+kind: Pipeline
+metadata:
+  name: deploy-app-ibm-cloud-pl
+  namespace: kabanero
+  author: Oscar Ricaud
+  date: 05/26/20
+spec:
+  params:
+    - name: cf_org
+      description: specify the cloud foundry org to run in
+      default: devops-gse
+    - name: cf_space
+      description: name of the cloud foundry space to run in
+      default: dev
+    - name: cf_app_name
+      description: name of application
+      default: storefront-ui-app
+  resources:
+    - name: git-source
+      type: git
+    - name: docker-image
+      type: image
+  tasks:
+    - name: deploy-app-ibmcloud
+      resources:
+        inputs:
+          - name: source
+            resource: git-source
+      params:
+        - name: docker_image
+          value: googlefu/cf-use-image:2.0
+        - name: cf_org
+          value: $(params.cf_org)
+        - name: cf_space
+          value: $(params.cf_space)
+        - name: cf_app_name
+          value: $(params.cf_app_name)   
+      taskRef:
+        kind: Task
+        name: deploy-app-ibmcloud-task
