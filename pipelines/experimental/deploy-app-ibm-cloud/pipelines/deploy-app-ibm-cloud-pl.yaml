@@ -9,15 +9,18 @@ metadata:
   date: 05/26/20
 spec:
   params:
-    - name: registry
-      description: Specify the registry url.
+    - name: namespace
+      description: namespace we want to deploy the app at
       default: docker.io
-    - name: image-registry-publish
-      description: determines if we want to push the image to a registry
+    - name: cf-org
+      description: specify the cloud foundry org to run in
       default: 'true'
-    - name: index-image
-      description: name of image
+    - name: cf-space
+      description: name of the cloud foundry space to run in
       default: healthcheck-pipeline
+    - name: cf-app-name
+      description: name of application
+      default: ""
     - name: event-type
       description: The event type
       type: string
@@ -30,7 +33,7 @@ spec:
     - name: docker-image
       type: image
   tasks:
-    - name: deploy-app-ibm-cloud
+    - name: deploy-app-ibmcloud
       resources:
         inputs:
           - name: source
@@ -38,12 +41,14 @@ spec:
           - name: image
             resource: docker-image
       params:
-        - name: registry
-          value: $(params.registry)
-        - name: index-image
-          value: $(params.index-image)
-        - name: image-registry-publish
-          value: $(params.image-registry-publish)
+        - name: namespace
+          value: $(params.namespace)
+        - name: cf-org
+          value: $(params.cf-org)
+        - name: cf-space
+          value: $(params.cf-space)
+        - name: cf-app-name
+          value: $(params.cf-app-name)   
       taskRef:
         kind: Task
-        name: create-release-for-git-task
+        name: deploy-app-ibmcloud-task

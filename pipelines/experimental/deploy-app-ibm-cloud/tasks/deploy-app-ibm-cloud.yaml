@@ -1,7 +1,7 @@
 apiVersion: tekton.dev/v1alpha1
 kind: Task
 metadata:
-  name: deploy-app
+  name: deploy-app-ibmcloud-task
   namespace: kabanero
   author: Oscar Ricaud
   date: 05/26/20
@@ -19,9 +19,6 @@ spec:
         default: ""
       - name: cf-app-name
         description: What to name the application on Cloud Foundry.
-        default: ""
-      - name: api-endpoint
-        description: Supply an endpoint url if needed
         default: ""
     resources:
       - name: source
@@ -62,17 +59,10 @@ spec:
       value: $(inputs.params.cf-space)
     - name: cf-app-name
       value: $(inputs.params.cf-app-name)
-    - name: api-endpoint
-      value: $(inputs.params.api-endpoint)
-    - name: cf-username
+    - name: ibmcloud-api-token
       valueFrom:
         secretKeyRef:
-          name: cf-access
-          key: CF_USERNMAME
-    - name: cf-password
-      valueFrom:
-        secretKeyRef:
-          name: cf-access
-          key: CF_PASSWORD
+          name: ibm-cr-pull-secret
+          key: PASSWORD
   resources: {}
   workingDir: $(inputs.resources.source.path)
