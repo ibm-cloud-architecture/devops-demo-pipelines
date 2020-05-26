@@ -8,6 +8,9 @@ metadata:
 spec:
   inputs:
     params:
+      - name: docker_image
+        description: The image that we are using for this project which includes the binaries for oc, kubectl, cf, apic, ibm cli, git, curl, tree
+        default: ""
       - name: cf_org
         description: Specify the Cloud Foundry org to run in.
         default: ""
@@ -20,23 +23,21 @@ spec:
     resources:
       - name: source
         type: git
-      - name: image
-        type: image
   steps:
     - name: deploying-app
-      image: $(inputs.resources.image.url)
+      image: $(inputs.params.docker_image)
       command: ["/bin/sh"]
       args:
         - -c
         - |
           set -euxo pipefail
-
+          
           # Login with the api key
           ibmcloud login --apikey ${ibmcloud_api_token} -r us-south
-
-          # install cloud foundry on the ibmcloud cli
-          ibmcloud cf install
         
+          # install ibm cloud
+          ibmcloud cf install
+          
           # Set resource group, cf org and space
           ibmcloud target -g ${cf_org} -o ${cf_org} -s ${cf_space}
           
