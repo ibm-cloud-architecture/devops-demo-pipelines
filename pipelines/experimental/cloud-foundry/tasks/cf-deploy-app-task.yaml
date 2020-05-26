@@ -8,21 +8,14 @@ metadata:
 spec:
   inputs:
     params:
-      - name: namespace
-        default: ""
-        type: string
-      - name: cf-org
+      - name: cf_org
         description: Specify the Cloud Foundry org to run in.
-        default: ""
-      - name: cf-space
+      - name: cf_space
         description: Specify the Cloud Foundry space to run in.
-        default: ""
-      - name: cf-app-name
+      - name: cf_app_name
         description: What to name the application on Cloud Foundry.
-        default: ""
-      - name: api-endpoint
+      - name: api_endpoint
         description: Supply an endpoint url if needed
-        default: ""
     resources:
       - name: source
         type: git
@@ -31,51 +24,47 @@ spec:
   steps:
     - name: deploying-app
       image: $(inputs.resources.image.url)
-  command: ["/bin/bash"]
-  args:
-    - -c
-    - |
-      set -euxo pipefail
+      command: ["/bin/bash"]
+      args:
+        - -c
+        - |
+          set -euxo pipefail
 
-      oc project ${namespace}
+          if [ ${api-endpoint}="" ]
+          then
+            continue
+          else
+            cf api ${api-endpoint}
+          fi
 
-      if [ ${api-endpoint}="" ]
-      then
-        continue
-      else
-        cf api ${api-endpoint}
-      fi
+          cf auth ${cf-username} ${cf-password}
 
-      cf auth ${cf-username} ${cf-password}
+          cf target -o ${cf-org} -s ${cf-space}
 
-      cf target -o ${cf-org} -s ${cf-space}
+          git clone https://github.com/andrew-suh/storefront-ui
 
-      git clone https://github.com/andrew-suh/storefront-ui
+          cd storefront-ui
 
-      cd storefront-ui
+          cf push -f ./manifest.yml storefront-ui-app
 
-      cf push -f ./manifest.yml storefront-ui-app
-
-  env:
-    - name: namespace
-      value: $(inputs.params.namespace)
-    - name: cf-org
-      value: $(inputs.params.cf-org)
-    - name: cf-space
-      value: $(inputs.params.cf-space)
-    - name: cf-app-name
-      value: $(inputs.params.cf-app-name)
-    - name: api-endpoint
-      value: $(inputs.params.api-endpoint)
-    - name: cf-username
-      valueFrom:
-        secretKeyRef:
-          name: cf-access
-          key: CF_USERNMAME
-    - name: cf-password
-      valueFrom:
-        secretKeyRef:
-          name: cf-access
-          key: CF_PASSWORD
-  resources: {}
-  workingDir: $(inputs.resources.source.path)
+      env:
+        - name: cf_org
+          value: $(inputs.params.cf_org)
+        - name: cf_space
+          value: $(inputs.params.cf_space)
+        - name: cf_app_name
+          value: $(inputs.params.cf_app_name)
+        - name: api_endpoint
+          value: $(inputs.params.api_endpoint)
+        - name: cf_username
+          valueFrom:
+            secretKeyRef:
+              name: cf-access
+              key: CF_USERNMAME
+        - name: cf-password
+          valueFrom:
+            secretKeyRef:
+              name: cf-access
+              key: CF_PASSWORD
+      resources: {}
+      workingDir: $(inputs.resources.source.path)
