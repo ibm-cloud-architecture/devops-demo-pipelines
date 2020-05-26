@@ -16,36 +16,32 @@ spec:
         description: What to name the application on Cloud Foundry.
       - name: api_endpoint
         description: Supply an endpoint url if needed
+      - name: docker_image
+        default: googlefu/cf-use-image:2.0
     resources:
       - name: source
         type: git
-      - name: image
-        type: image
   steps:
     - name: deploying-app
-      image: $(inputs.resources.image.url)
-      command: ["/bin/bash"]
+      image: $(inputs.params.docker_image)
+      command: ["/bin/sh"]
       args:
         - -c
         - |
           set -euxo pipefail
-
-          if [ ${api-endpoint}="" ]
+          echo ${api_endpoint}
+          if [ ${api_endpoint} = "" ]
           then
             continue
           else
-            cf api ${api-endpoint}
+            cf api ${api_endpoint}
           fi
 
-          cf auth ${cf-username} ${cf-password}
+          cf auth ${cf_username} ${cf_password}
 
-          cf target -o ${cf-org} -s ${cf-space}
+          cf target -o ${cf_org} -s ${cf_space}
 
-          git clone https://github.com/andrew-suh/storefront-ui
-
-          cd storefront-ui
-
-          cf push -f ./manifest.yml storefront-ui-app
+          cf push -f ./manifest.yaml ${cf_app_name}
 
       env:
         - name: cf_org
@@ -60,8 +56,8 @@ spec:
           valueFrom:
             secretKeyRef:
               name: cf-access
-              key: CF_USERNMAME
-        - name: cf-password
+              key: CF_USERNAME
+        - name: cf_password
           valueFrom:
             secretKeyRef:
               name: cf-access

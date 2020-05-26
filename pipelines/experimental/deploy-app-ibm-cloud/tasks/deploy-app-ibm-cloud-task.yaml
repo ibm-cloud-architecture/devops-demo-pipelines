@@ -40,12 +40,9 @@ spec:
           
           # Set resource group, cf org and space
           ibmcloud target -g ${cf_org} -o ${cf_org} -s ${cf_space}
-          
-          # Clone application 
-          git clone https://github.com/ibm-cloud-architecture/devops-demo-storefront-ui
 
           # Change directory to the clone app
-          cd devops-demo-storefront-ui
+          # cd devops-demo-storefront-ui
 
           # Push app to cloud foundry
           ibmcloud cf push -f ./manifest.yml ${cf_app_name}
