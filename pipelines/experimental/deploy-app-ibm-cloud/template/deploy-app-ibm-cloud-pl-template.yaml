@@ -3,7 +3,7 @@ kind: TriggerTemplate
 metadata:
   annotations:
     manifestival: new
-  name: git-package-release-update-pl-template
+  name: deploy-app-ibm-cloud-pl-template
   namespace: tekton-pipelines
 spec:
   params:
@@ -74,7 +74,7 @@ spec:
     - apiVersion: tekton.dev/v1alpha1
       kind: PipelineRun
       metadata:
-        generateName: git-package-release-update-pl-run-
+        generateName: deploy-app-ibm-cloud-pl-run-
         labels:
           webhooks.tekton.dev/gitBranch: $(params.webhooks-tekton-git-branch)
           webhooks.tekton.dev/gitOrg: $(params.webhooks-tekton-git-org)
@@ -86,7 +86,7 @@ spec:
           - name: event-type
             value: $(params.event-type)
         pipelineRef:
-          name: git-package-release-update-pl
+          name: deploy-app-ibm-cloud-pl
         resources:
           - name: git-source
             resourceRef:

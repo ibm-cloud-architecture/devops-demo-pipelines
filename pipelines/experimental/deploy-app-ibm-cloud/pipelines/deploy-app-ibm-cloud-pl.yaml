@@ -9,16 +9,13 @@ metadata:
   date: 05/26/20
 spec:
   params:
-    - name: namespace
-      description: namespace we want to deploy the app at
-      default: docker.io
-    - name: cf-org
+    - name: cf_org
       description: specify the cloud foundry org to run in
-      default: 'true'
-    - name: cf-space
+      default: ""
+    - name: cf_space
       description: name of the cloud foundry space to run in
-      default: healthcheck-pipeline
-    - name: cf-app-name
+      default: ""
+    - name: cf_app_name
       description: name of application
       default: ""
     - name: event-type
@@ -41,14 +38,12 @@ spec:
           - name: image
             resource: docker-image
       params:
-        - name: namespace
-          value: $(params.namespace)
-        - name: cf-org
-          value: $(params.cf-org)
-        - name: cf-space
-          value: $(params.cf-space)
-        - name: cf-app-name
-          value: $(params.cf-app-name)   
+        - name: cf_org
+          value: $(params.cf_org)
+        - name: cf_space
+          value: $(params.cf_space)
+        - name: cf_app_name
+          value: $(params.cf_app_name)   
       taskRef:
         kind: Task
         name: deploy-app-ibmcloud-task
