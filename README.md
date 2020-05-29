@@ -1,22 +1,34 @@
+# Extend, Build & Deploy Kabanero Pipelines
+Developers that use [Kabanero](https://kabanero.io/) pipelines often times have to extend these pipelines to do certain tasks that do not come
+in the out-of-the-box Kabanero pipelines. These tasks may include code coverage, or use third party applications like
+[Pact Broker](https://docs.pact.io/pact_broker), [Sonarqube](https://www.sonarqube.org/) or [Artifactory](https://jfrog.com/artifactory/)
+to full-fill software requirements. Currently, there are not many methods to manage and version control your Kabanero 
+pipelines, and the goal of this repository is to help you get going.
+
+You will learn how to package, host your pipelines in different environments such as Git or Artifactory and use
+these pipelines to automate the process of updating the [kabanero custom resource](https://kabanero.io/docs/ref/general/configuration/kabanero-cr-config.html) 
+to a respective host where your Kabanero pipelines exist.
+
 ## Table of Contents
-  * [Introduction](#introduction)
-  * [Definitions](#definition)
+  * [Extend, Build & Deploy Kabanero Pipelines](#extend-build--deploy-kabanero-pipelines)
+  * [Overview](#overview)
   * [Pre-requisites](#pre-requisites)
   * [Package pipelines](#package-pipelines)
   * [Host packaged-pipelines on Artifactory](#host-pipelines-on-artifactory)
   * [Host packaged-pipelines on Git Manually](#host-pipelines-on-git-manually)
-  * [Host pipelines on Git Automated](#host-pipelines-on-git-automated)
-  * [Host pipelines without version control](#host-pipelines-without-version-control)
+  * [Deploy packaged pipelines onto the kabanero namespace](#deploy-packaged-pipelines-onto-kabanero-namespace)
+  * [Host pipelines without version control](#deploy-pipelines-without-version-control)
   * [Create tekton webhook](#create-a-tekton-webhook)
+  * [Definitions](#definitions)
   
-# Introduction
-This repository includes 3 directories, `experimental`(pipelines that are not production-ready and are considered,
+# Overview
+This repository includes 3 [directories](pipelines), `experimental`(pipelines that are not production-ready and are considered,
 proof of concept),`incubator`(pipelines that are not production-ready and require further development to satisfy the stable criteria.) 
 and `stable`(pipelines that are production ready).
 
-This repository also contains multiple pipelines such as [artifactory-package-release-update](pipelines/experimental/artifactory-package-release-update), 
+This repository also contains multiple [/pipelines/](./pipelines/incubator) such as [artifactory-package-release-update](pipelines/experimental/artifactory-package-release-update), 
 [git-package-release-update](./pipelines/experimental/git-package-release-update) and [mcm-pipelines](pipelines/incubator/mcm-pipelines).
-You can view all [/pipelines/](./pipelines/incubator). The repository also contains a [./run.sh](./run.sh) script file which helps automate the process of deploying your pipelines on git.
+ The repository also contains a [./run.sh](./run.sh) script file which helps automate the process of deploying your pipelines as git releases.
 
 There are multiple approaches on packaging and releasing your pipelines. Both the `artifactory-package-release-update` & `git-package-release-update` pipelines do the same thing, package, manage
 and deploy your custom pipelines, except hosted in different environments. For example, the `artifactory-package-release-update` pipeline, packages your
@@ -25,20 +37,7 @@ is to get you going in managing your custom made pipelines.
 
 The `mcm-pipelines` contains the tasks of building, testing, pushing an image and a healthcheck of a nodejs application. It also
 does a `sonar-scan` for code coverage.
-
-# Definitions 
-    Artifactory
-    Github Releases
-    Docker - a set of platform as a service products that uses OS-level virtualization to deliver software in packages called containers.
-    Openshift - is a family of containerization software developed by Red Hat.
-    Tekton - a powerful yet flexible Kubernetes-native open-source framework for creating continuous integration and delivery (CI/CD) systems
-    Tekton Events - An EventListener sets up a Kubernetes Service which can be exposed as an OpenShift Route 
-    Tekton TriggerBindings - enable you to capture fields from an event and store them as parameters. 
-    Tekton Templates - defines a Template for how a Pipeline should be run in reaction to events
-    Tekton Pipelines - is an open source project that you can use to configure and run continuous integration and Continuous Delivery pipelines within a Kubernetes cluster.
-    Tekton Steps - A Step is a reference to a container image that executes a specific tool on a specific input and produces a specific output.
-    Tekton Tasks - is a collection of Steps that you define and arrange in a specific order of execution as part of your continuous integration flow. 
-    
+   
 # Pre-requisites
 * Install the following CLI's on your laptop/workstation:
 
@@ -143,12 +142,14 @@ Go to section [Create tekton webhook](#create-a-tekton-webhook) to create your w
 Once you are done with that go to your forked repository and make a change and your tekton dashboard should create a 
 new pipeline run as shown below:
 
-[artifactory-package-release-update-pl-rn.png](img/artifactory-package-release-update-pl-rn.png)
-
 You could also manually trigger your pipelines
 ![](gifs/artifactory-package-release-update-pl-rn.gif)
 
 Where the `git-source` is defined as the pipeline resource with key [url] and value [github repo url] 
+
+The end result should look like the following:
+
+![alt text](img/artifactory-package-release-update-pl-rn.png)
 
 # Host pipelines on Git (Manually)
 You will first need to package your pipelines. To do that go to the [package-pipelines](#package-pipelines)
@@ -229,3 +230,17 @@ You can but not recommended non-version control your pipelines by running the fo
 oc apply --recursive --filename pipelines/{pick expiermental, incubator or stable}
 ```
 
+
+# Definitions 
+    Artifactory - is a Binary Repository Manager product from Jfrog.
+    Github Releases - Releases are GitHub's way of packaging and providing software to your users.  
+    Docker - a set of platform as a service products that uses OS-level virtualization to deliver software in packages called containers.
+    Openshift - is a family of containerization software developed by Red Hat.
+    Tekton - a powerful yet flexible Kubernetes-native open-source framework for creating continuous integration and delivery (CI/CD) systems
+    Tekton Events - An EventListener sets up a Kubernetes Service which can be exposed as an OpenShift Route 
+    Tekton TriggerBindings - enable you to capture fields from an event and store them as parameters. 
+    Tekton Templates - defines a Template for how a Pipeline should be run in reaction to events
+    Tekton Pipelines - is an open source project that you can use to configure and run continuous integration and Continuous Delivery pipelines within a Kubernetes cluster.
+    Tekton Steps - A Step is a reference to a container image that executes a specific tool on a specific input and produces a specific output.
+    Tekton Tasks - is a collection of Steps that you define and arrange in a specific order of execution as part of your continuous integration flow. 
+    
