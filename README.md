@@ -244,3 +244,4 @@ oc apply --recursive --filename pipelines/{pick expiermental, incubator or stabl
     Tekton Steps - A Step is a reference to a container image that executes a specific tool on a specific input and produces a specific output.
     Tekton Tasks - is a collection of Steps that you define and arrange in a specific order of execution as part of your continuous integration flow. 
     
+    
