@@ -1,0 +1,5 @@
+[user]
+        name = your-github-username
+        email = your-github-email-address
+[github]
+        token = your-github-token

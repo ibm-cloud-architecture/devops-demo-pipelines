@@ -165,7 +165,7 @@ But first, create a new repository i.e named `pipeline-server` on github and fol
 ### Pre-reqs
 You need to create a github 
 [token](https://help.github.com/en/github/authenticating-to-github/creating-a-personal-access-token-for-the-command-line)
-and need to create a `.gitconfig` file such as:
+and need to create a [.gitconfig](.gitconfig) file such as:
     
 ```bash
 ~/Documents/devops-demo-kabanero-pipelines/ cat ~/.gitconfig
@@ -243,4 +243,3 @@ oc apply --recursive --filename pipelines/{pick expiermental, incubator or stabl
     Tekton Pipelines - is an open source project that you can use to configure and run continuous integration and Continuous Delivery pipelines within a Kubernetes cluster.
     Tekton Steps - A Step is a reference to a container image that executes a specific tool on a specific input and produces a specific output.
     Tekton Tasks - is a collection of Steps that you define and arrange in a specific order of execution as part of your continuous integration flow. 
-    
