@@ -1,0 +1,44 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Pipeline
+metadata:
+  name: cf-deployment-pl
+  namespace: kabanero
+  author: Andrew Suh
+  date: 05/22/20
+spec:
+  params:
+    - name: cf_org
+      description: Specify the Cloud Foundry org to run in.
+      default: "examples"
+    - name: cf_space
+      description: Specify the Cloud Foundry space to run in.
+      default: "hello-worlds"
+    - name: cf_app_name
+      description: What to name the application on Cloud Foundry.
+      default: "kubecf-storefront-ui-app"
+    - name: api_endpoint
+      description: Supply an endpoint url if needed
+      default: "api.sf.kubecf.dev"
+  resources:
+    - name: git-source
+      type: git
+    - name: docker-image
+      type: image
+  tasks:
+    - name: deploy-app
+      resources:
+        inputs:
+          - name: source
+            resource: git-source
+      params:
+        - name: cf_org
+          value: $(params.cf_org)
+        - name: cf_space
+          value: $(params.cf_space)
+        - name: cf_app_name
+          value: $(params.cf_app_name)
+        - name: api_endpoint
+          value: $(params.api_endpoint)
+      taskRef:
+        kind: Task
+        name: deploy-app

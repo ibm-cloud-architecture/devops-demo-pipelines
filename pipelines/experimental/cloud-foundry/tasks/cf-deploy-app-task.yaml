@@ -1,0 +1,66 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Task
+metadata:
+  name: deploy-app
+  namespace: kabanero
+  author: Andrew Suh
+  date: 05/22/20
+spec:
+  inputs:
+    params:
+      - name: cf_org
+        description: Specify the Cloud Foundry org to run in.
+      - name: cf_space
+        description: Specify the Cloud Foundry space to run in.
+      - name: cf_app_name
+        description: What to name the application on Cloud Foundry.
+      - name: api_endpoint
+        description: Supply an endpoint url if needed
+      - name: docker_image
+        default: googlefu/cf-use-image:2.0
+    resources:
+      - name: source
+        type: git
+  steps:
+    - name: deploying-app
+      image: $(inputs.params.docker_image)
+      command: ["/bin/sh"]
+      args:
+        - -c
+        - |
+          set -euxo pipefail
+          echo ${api_endpoint}
+          if [ ${api_endpoint} = "" ]
+          then
+            continue
+          else
+            cf api ${api_endpoint}
+          fi
+
+          cf auth ${cf_username} ${cf_password}
+
+          cf target -o ${cf_org} -s ${cf_space}
+
+          cf push -f ./manifest.yaml ${cf_app_name}
+
+      env:
+        - name: cf_org
+          value: $(inputs.params.cf_org)
+        - name: cf_space
+          value: $(inputs.params.cf_space)
+        - name: cf_app_name
+          value: $(inputs.params.cf_app_name)
+        - name: api_endpoint
+          value: $(inputs.params.api_endpoint)
+        - name: cf_username
+          valueFrom:
+            secretKeyRef:
+              name: cf-access
+              key: CF_USERNAME
+        - name: cf_password
+          valueFrom:
+            secretKeyRef:
+              name: cf-access
+              key: CF_PASSWORD
+      resources: {}
+      workingDir: $(inputs.resources.source.path)
