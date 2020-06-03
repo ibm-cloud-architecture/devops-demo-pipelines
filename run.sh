@@ -108,7 +108,7 @@ upload_asset() {
   if [[ "$MODE" = "HTTPS" ]] ; then
     # Construct url
     GH_ASSET="https://uploads.github.com/repos/$REPO_FULL_NAME_HTTPS/releases/$id/assets?name=$(basename $filename)"
-    curl "$GITHUB_OAUTH_BASIC" --data-binary @"$filename" -H "Authorization: token $TOKEN" -H "Content-Type: application/octet-stream" "$GH_ASSET"
+    curl --data-binary @$filename -H "Authorization: token $TOKEN" -H "Content-Type: $(file -b --mime-type $filename)" "$GH_ASSET"
   elif [[ "$MODE" = "GIT" ]] ; then
     # Construct url
     GH_ASSET="https://uploads.github.com/repos/$REPO_FULL_NAME_GIT/releases/$id/assets?name=$(basename $filename)"
