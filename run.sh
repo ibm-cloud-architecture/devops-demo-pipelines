@@ -1,10 +1,7 @@
 #!/usr/bin/env bash
-#https://stackoverflow.com/questions/19482123/extract-part-of-a-string-using-bash-cut-split
-# define global variables
 CONFIG=$@
 BRANCH="master" # we need this because the releases are pushed onto the master branch instead of a feature or issue branch
-#REPO_FULL_NAME_HTTPS=$(git config --get remote.origin.url | sed 's/.*:\/\/github.com\///;s/.git$//')
-REPO_FULL_NAME_HTTPS=ibm-cloud-architecture/devops-demo-kabanero-pipelines
+REPO_FULL_NAME_HTTPS=$(git config --get remote.origin.url | sed 's/.*:\/\/github.com\///;s/.git$//')
 FULL_GIT=$(git config --get remote.origin.url)
 STRIPPED_GIT=${FULL_GIT##*:}
 REPO_FULL_NAME_GIT=${STRIPPED_GIT%.*}
