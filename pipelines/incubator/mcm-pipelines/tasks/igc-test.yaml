@@ -3,7 +3,7 @@ apiVersion: tekton.dev/v1alpha1
 kind: Task
 metadata:
   generation: 1
-  name: StackId-igc-nodejs-test
+  name: StackId-igc-test
   namespace: kabanero
 spec:
   inputs:

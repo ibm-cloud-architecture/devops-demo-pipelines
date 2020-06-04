@@ -1,22 +1,20 @@
 contents:
 - file: mcm-pipelines/tasks/igc-nodejs-test.yaml
-  sha256: e9c0ea05eaf094d4286f4da1d45327e172609cdc1ee4c29e546d57210ad03baf
-- file: mcm-pipelines/tasks/nodejs-build-push-task.yaml
-  sha256: 9e74aba86ada309f8c4461ed8f14578e27f790e83fabd11f689a55908e45dede
-- file: mcm-pipelines/tasks/nodejs-image-scan-task.yaml
-  sha256: 6a2fe0259b40a7fcd4cd4e59167c8a66c1ef7f8e902ce175505a5583490b35b4
+  sha256: f2da0b39cb0d10808f3da64f75ba76fcd2c9929517f3dc0ac217d742be646f55
+- file: mcm-pipelines/tasks/igc-test.yaml
+  sha256: 020851e68287c99fa7b6fff026d903a9e5c54308f0fd1a779994c607e10d57c6
 - file: mcm-pipelines/tasks/gitops.yaml
-  sha256: bac6b81f9529480e52d0b14cb777f9d6b00f0209ca2dd471927f641bb2aab037
+  sha256: 74d7a54b5240051be6901f3dfd48d2fc8956ff320b75cc0639da8bc1097f1077
+- file: mcm-pipelines/tasks/image-scan-task.yaml
+  sha256: ad20b5fd13c785ead38cd18835d63b96588b0829d62e73548b69d807372c605d
 - file: mcm-pipelines/tasks/health-check-task.yaml
-  sha256: ba4e2ded9d61ea81787668033ee147c7acb560da4fc31686fd5abac6c0672605
-- file: mcm-pipelines/pipelines/nodejs-mcm-pl.yaml
-  sha256: 092dd724a3e9c9e95db365e379de0ae3b3f184e4ba29ea5deac5fd9fee24a237
-- file: mcm-pipelines/templates/nodejs-mcm-pl-template.yaml
-  sha256: 54bc2ab21a1e0f064058c0d749619c0f9d92faf38a194200310d0767650b28ad
-- file: mcm-pipelines/bindings/nodejs-mcm-pl-push-binding.yaml
-  sha256: 08dfcff61992fc75e0cc1ed236245fb5fd3d1831aaadc7e5d6834d5cc1887788
-- file: mcm-pipelines/bindings/nodejs-mcm-pl-pullrequest-binding.yaml
-  sha256: 613d54c4f27dc520bcd25bd43b3e854d164452499f78d0cecc6d7c21489dbcd7
+  sha256: 49bc01a3d6ca7f89d6a1517e058b7baa214398dc0fd1682947bd9766f3ef94b9
+- file: mcm-pipelines/tasks/build-push-task.yaml
+  sha256: 94db2018405b42c8f5e7b0426bac5225037b83f5a36c6694ab71e9165e3db427
+- file: mcm-pipelines/pipelines/mcm-pl.yaml
+  sha256: ec6e67b18db2ea7c414aae24c6b49d4a1004cf80de816784712b426e9f2fcf0e
+- file: mcm-pipelines/bindings/mcm-pl-tr.yaml
+  sha256: 65abd7e4a598a590c9e9c3a883e57ed4303f68a405ea68d3948e2f646c2ea2c6
 - file: artifactory-package-release-update/tasks/create-release-for-artifactory-task.yaml
   sha256: aa11f6c3e61b1a86da34cf1788e6169ebcbe93c158ef12a8732263615cf02cca
 - file: artifactory-package-release-update/secrets/artifactory-access.yaml

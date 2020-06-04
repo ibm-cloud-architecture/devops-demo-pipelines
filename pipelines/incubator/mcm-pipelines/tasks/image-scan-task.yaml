@@ -1,10 +1,11 @@
+#Kabanero! on activate substitute StackId for text 'StackId' 
 apiVersion: tekton.dev/v1alpha1
 kind: Task
 metadata:
   annotations:
     manifestival: new
   generation: 1
-  name: nodejs-image-scan-task
+  name: StackId-image-scan-task
   namespace: kabanero
 spec:
   inputs:
