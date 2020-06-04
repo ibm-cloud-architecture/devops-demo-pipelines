@@ -1,8 +1,7 @@
-#Kabanero! on activate substitute StackId for text 'StackId' 
 apiVersion: tekton.dev/v1alpha1
 kind: Task
 metadata:
-  name: StackId-gitops
+  name: gitops
   namespace: kabanero
 spec:
   inputs:

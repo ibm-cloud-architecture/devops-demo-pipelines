@@ -25,7 +25,7 @@ spec:
             resource: git-source
       taskRef:
         kind: Task
-        name: StackId-igc-test
+        name: igc-test
     - name: build-push-task # imagename-lowercase, build and pushes
       resources:
         inputs:
@@ -40,7 +40,7 @@ spec:
         - test
       taskRef:
         kind: Task
-        name: StackId-build-push-task
+        name: build-push-task
     - name: image-scan-task # lowercase image, mount image, scan image
       resources:
         inputs:
@@ -52,7 +52,7 @@ spec:
         - build-push-task
       taskRef:
         kind: Task
-        name: StackId-image-scan-task
+        name: image-scan-task
     - name: gitops # clone ops repo and update repo app-deploy.yaml file
       resources:
         inputs:
@@ -63,7 +63,7 @@ spec:
       runAfter:
         - image-scan-task
       taskRef:
-        name: StackId-gitops
+        name: gitops
     - name: health-check # clone ops repo and update repo app-deploy.yaml file
       resources:
         inputs:
@@ -74,5 +74,5 @@ spec:
       runAfter:
         - image-scan-task
       taskRef:
-        name: StackId-health-check-task
+        name: health-check-task
 

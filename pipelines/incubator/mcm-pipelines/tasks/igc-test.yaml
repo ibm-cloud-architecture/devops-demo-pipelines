@@ -1,9 +1,8 @@
-#Kabanero! on activate substitute StackId for text 'StackId' 
 apiVersion: tekton.dev/v1alpha1
 kind: Task
 metadata:
   generation: 1
-  name: StackId-igc-test
+  name: igc-test
   namespace: kabanero
 spec:
   inputs:
