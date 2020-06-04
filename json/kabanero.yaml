@@ -12,7 +12,7 @@ items:
     generation: 20
     name: kabanero
     namespace: kabanero
-    resourceVersion: "45195744"
+    resourceVersion: "45346471"
     selfLink: /apis/kabanero.io/v1alpha2/namespaces/kabanero/kabaneros/kabanero
     uid: 0f8d15ce-1e96-4a2c-99f3-6d25e30bd803
   spec:
@@ -51,9 +51,9 @@ items:
         id: default
         sha256: 64aee2805d36127c2f1e0e5f0fc6fdae5cef19360c1bb506137584f3bd0988cc
       - https:
-          url: https://github.com/oiricaud/devops-demo-kabanero-pipelines/releases/download/v1.34/default-kabanero-pipelines.tar.gz
-        id: mcm-pipelines
-        sha256: 2f1d8b7808e50a599644b38356782aa5a7bdcd5a69b01bacf04e7f7769a3f9f9
+          url: https://github.com/oiricaud/devops-demo-kabanero-pipelines/releases/download/v1.36/default-kabanero-pipelines.tar.gz
+        id: mcm-pipelines-v2
+        sha256: 82407965d593b72fc9f6ee26bdf8fd0a9406229e546c08eac1d3b8401daddf41
     targetNamespaces:
     - qa
     - storefront

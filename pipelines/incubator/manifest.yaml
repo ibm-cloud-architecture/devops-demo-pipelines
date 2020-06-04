@@ -1,4 +1,6 @@
 contents:
+- file: .DS_Store
+  sha256: e9e8222182046ae3bde76f8aefb260eb43f9c836dfc2468aaf0d4a9bdefa6376
 - file: mcm-pipelines/tasks/igc-nodejs-test.yaml
   sha256: e9c0ea05eaf094d4286f4da1d45327e172609cdc1ee4c29e546d57210ad03baf
 - file: mcm-pipelines/tasks/igc-test.yaml
@@ -11,8 +13,10 @@ contents:
   sha256: ba4e2ded9d61ea81787668033ee147c7acb560da4fc31686fd5abac6c0672605
 - file: mcm-pipelines/tasks/build-push-task.yaml
   sha256: c48ff8178973c6375892328bda8dccec07c396d1a4225d4e78c32e3f2f1c91b7
-- file: mcm-pipelines/pipelines/StackId-mcm-pl.yaml
-  sha256: f043b16ee513ed222ffe5f2b6289719475ff270e2204e27aea536d5815eebb49
+- file: mcm-pipelines/.DS_Store
+  sha256: 5b2d441be25e08e7d7c523d2d217a135c647089beba29966be6168cc1a5a54e1
+- file: mcm-pipelines/pipelines/mcm-bounded-stack-pl.yaml
+  sha256: 828f79a3c4fe9cfccf059cc2308b210cc3fac58c1d2d7506ba9cde0db798a6f2
 - file: mcm-pipelines/bindings/mcm-pl-tr.yaml
   sha256: 65abd7e4a598a590c9e9c3a883e57ed4303f68a405ea68d3948e2f646c2ea2c6
 - file: artifactory-package-release-update/tasks/create-release-for-artifactory-task.yaml
