@@ -1,9 +1,52 @@
+#Kabanero! on activate substitute StackId for text 'StackId' 
+apiVersion: tekton.dev/v1alpha1
+kind: TriggerBinding
+metadata:
+  name: StackId-mcm-pl-pullrequest-binding
+  namespace: tekton-pipelines
+spec:
+  params:
+    - name: gitrevision
+      value: $(body.pull_request.head.sha)
+    - name: gitrepositoryurl
+      value: $(body.repository.clone_url)
+    - name: docker-tag
+      value: '$(body.repository.name):$(body.pull_request.head.sha)'
+    - name: event-type
+      value: $(header.X-Github-Event)
+    - name: webhooks-tekton-git-branch
+      value: $(body.webhooks-tekton-git-branch)
+
+---
+apiVersion: tekton.dev/v1alpha1
+kind: TriggerBinding
+metadata:
+  annotations:
+    manifestival: new
+  name: StackId-mcm-pl-push-binding
+  namespace: tekton-pipelines
+spec:
+  params:
+    - name: gitrevision
+      value: $(body.head_commit.id)
+    - name: gitrepositoryurl
+      value: $(body.repository.clone_url)
+    - name: docker-tag
+      value: '$(body.repository.name):$(body.head_commit.id)'
+    - name: event-type
+      value: $(header.X-Github-Event)
+    - name: event-ref
+      value: $(body.ref)
+    - name: webhooks-tekton-git-branch
+      value: $(body.webhooks-tekton-git-branch)
+
+---
 apiVersion: tekton.dev/v1alpha1
 kind: TriggerTemplate
 metadata:
   annotations:
     manifestival: new
-  name: nodejs-mcm-pl-template
+  name: StackId-mcm-pl-template
   namespace: tekton-pipelines
 spec:
   params:
@@ -57,7 +100,7 @@ spec:
     - apiVersion: tekton.dev/v1alpha1
       kind: PipelineRun
       metadata:
-        generateName: nodejs-mcm-pl-run-
+        generateName: StackId-mcm-pl-run-
         labels:
           webhooks.tekton.dev/gitBranch: $(params.webhooks-tekton-git-branch)
           webhooks.tekton.dev/gitOrg: $(params.webhooks-tekton-git-org)
@@ -69,7 +112,7 @@ spec:
           - name: event-type
             value: $(params.event-type)
         pipelineRef:
-          name: nodejs-mcm-pl
+          name: StackId-mcm-pl
         resources:
           - name: git-source
             resourceRef:

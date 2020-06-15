@@ -1,7 +1,8 @@
+#Kabanero! on activate substitute StackId for text 'StackId' 
 apiVersion: tekton.dev/v1alpha1
 kind: Pipeline
 metadata:
-  name: nodejs-mcm-pl
+  name: StackId-mcm-bounded-stack-pl
   namespace: kabanero
 spec:
   params:
@@ -24,7 +25,7 @@ spec:
             resource: git-source
       taskRef:
         kind: Task
-        name: igc-nodejs-test
+        name: igc-test
     - name: build-push-task # imagename-lowercase, build and pushes
       resources:
         inputs:
@@ -39,7 +40,7 @@ spec:
         - test
       taskRef:
         kind: Task
-        name: nodejs-build-push-task
+        name: build-push-task
     - name: image-scan-task # lowercase image, mount image, scan image
       resources:
         inputs:
@@ -51,7 +52,7 @@ spec:
         - build-push-task
       taskRef:
         kind: Task
-        name: nodejs-image-scan-task
+        name: image-scan-task
     - name: gitops # clone ops repo and update repo app-deploy.yaml file
       resources:
         inputs:

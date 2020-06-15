@@ -4,7 +4,7 @@ metadata:
   annotations:
     manifestival: new
   generation: 1
-  name: nodejs-image-scan-task
+  name: image-scan-task
   namespace: kabanero
 spec:
   inputs:
