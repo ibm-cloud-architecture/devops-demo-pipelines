@@ -243,7 +243,7 @@ From the stack directory you created `typescript-angular` run the following comm
     The `image` key is the image you upload to docker hub.
 
     ```yaml
-    url: https://github.com/oiricaud/devops-demo-kabanero-pipelines/releases/download/v1.37/oiricaud-index.yaml
+    url: https://github.com/$GITHUB_USERNAME/$GITHUB_REPOISTORY/releases/download/v1.37/oiricaud-index.yaml
     name: typescript-angular
     versions:
     - images:
