@@ -14,6 +14,7 @@ to a respective host where your Kabanero pipelines exist.
   * [Overview](#overview)
   * [Pre-requisites](#pre-requisites)
   * [Package pipelines](#package-pipelines)
+  * [Bound Custom Pipelines to Kabanero Stacks](#bound-custom-pipelines-to-kabanero-stacks)
   * [Host packaged-pipelines on Artifactory](#host-pipelines-on-artifactory)
   * [Host packaged-pipelines on Git Manually](#host-pipelines-on-git-manually)
   * [Deploy packaged pipelines onto the kabanero namespace](#deploy-packaged-pipelines-onto-kabanero-namespace)
@@ -113,6 +114,111 @@ IMAGE_REGISTRY_PUBLISH=false; Skipping push of docker.io/yellocabins/pipelines-i
 IMAGE_REGISTRY_PUBLISH=false; Skipping push of docker.io/yellocabins/pipelines-index:SNAPSHOT
 ```
 You will see a new zip file under [ci/assets/](ci/assets/default-kabanero-pipelines)
+
+# Bound Custom Pipelines to Kabanero Stacks
+It is pretty easy to bound your custom pipelines onto the default kabanero stacks. Kabanero has the following out-of-the-box stacks
+
+- Java Microprofile
+- Java Openliberty
+- Java Spring Boot
+- NodeJS
+- Nodejs Express
+
+You can reuse these stacks to bound your custom pipelines. For example, in this repository there are custom pipelines
+that we have created for our requirement needs.
+
+- [mcm-pipeline](pipelines/incubator/mcm-pipelines)
+- [cloud-foundry](pipelines/experimental/cloud-foundry)
+- [deploy-app-ibm-cloud](pipelines/incubator/experimental/deploy-app-ibm-cloud)
+- [git-package-release-update](pipelines/incubator/experimental/git-package-release-update)
+- [artifactory-package-release-update](pipelines/incubator/artifactory-package-release-update)
+
+If you wanted to bound let's say, `deploy-app-ibm-cloud` or a custom pipeline that you created to all of the kabanero default stacks as shown above. We can achieve that by following the steps:
+1. Inspect current pipeline, tasks and trigger bindings. We currently have in `deploy-app-ibm-cloud` pipeline
+    ```yaml
+    # The responsibility of this pipeline is to deploy an app
+    # such as the storefront application onto Ibm cloud Cloud Foundry.
+    apiVersion: tekton.dev/v1alpha1
+    kind: Pipeline
+    metadata:
+      name: deploy-app-ibm-cloud-pl
+      namespace: kabanero
+    .
+    .
+    .
+    ```
+    We must update the pipeline, trigger-binding and trigger-template yaml and include the following comment at the top of your yaml.
+    ```yaml
+    #Kabanero! on activate substitute StackId for text 'StackId' 
+    ```
+    You also must add `StackId-` to the name of your pipeline. If the name of your pipeline is `abc-pl` the result is `StackId-abc-pl`. Look at the following for the `deploy-app-ibm-cloud` pipeline example:
+    ```yaml
+    #Kabanero! on activate substitute StackId for text 'StackId'
+    # The responsibility of this pipeline is to deploy an app
+    # such as the storefront application onto Ibm cloud Cloud Foundry.
+    apiVersion: tekton.dev/v1alpha1
+    kind: Pipeline
+    metadata:
+      name: StackId-deploy-app-ibm-cloud-pl
+      namespace: kabanero
+    .
+    .
+    .
+    ``` 
+2. Repeat for the Trigger bindings same process as step 1. The result should look like the following:
+    
+    TriggerBinding for pullrequest
+    ```yaml
+    #Kabanero! on activate substitute StackId for text 'StackId' 
+    apiVersion: tekton.dev/v1alpha1
+    kind: TriggerBinding
+    metadata:
+      name: StackId-deploy-app-ibm-cloud-pl-pullrequest-binding
+      namespace: tekton-pipelines
+    .
+    .
+    .
+    ```
+    TriggerBinding for push
+    ```yaml
+    apiVersion: tekton.dev/v1alpha1
+    kind: TriggerBinding
+    metadata:
+      annotations:
+        manifestival: new
+      name: StackId-deploy-app-ibm-cloud-pl-push-binding
+      namespace: tekton-pipelines
+    .
+    .
+    .
+    ```
+
+    TriggerTemplate 
+    ```yaml
+    apiVersion: tekton.dev/v1alpha1
+    kind: TriggerTemplate
+    metadata:
+      annotations:
+         manifestival: new
+      name: StackId-deploy-app-ibm-cloud-pl-push-pl-template
+      namespace: tekton-pipelines
+    ```
+
+3. Go back to section to [Package pipelines](#package-pipelines) for your new version of pipelines.
+
+4. Go to your Tekton Dashboard -> Pipelines. Or you can also open the terminal and run the following:
+
+    ```bash
+      > tkn pipeline list
+        java-openliberty-deploy-app-ibm-cloud-pl
+        java-spring-boot2-deploy-app-ibm-cloud-pl
+        nodejs-deploy-app-ibm-cloud-pl
+        nodejs-express-deploy-app-ibm-cloud-pl
+    ```
+       
+
+
+
 
 # Host pipelines on Artifactory
 ### Pre-reqs
