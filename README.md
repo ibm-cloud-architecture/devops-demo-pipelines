@@ -15,6 +15,7 @@ to a respective host where your Kabanero pipelines exist.
   * [Pre-requisites](#pre-requisites)
   * [Package pipelines](#package-pipelines)
   * [How to create a custom stack](#how-to-create-a-custom-stack)
+  * [How to release your stacks to Kabanero ](#how-to-release-your-stacks-to-kabanero)
   * [Bound Custom Pipelines to Kabanero Stacks](#bound-custom-pipelines-to-kabanero-stacks)
   * [Host packaged-pipelines on Artifactory](#host-pipelines-on-artifactory)
   * [Host packaged-pipelines on Git Manually](#host-pipelines-on-git-manually)
