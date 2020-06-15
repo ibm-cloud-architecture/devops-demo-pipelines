@@ -14,6 +14,7 @@ to a respective host where your Kabanero pipelines exist.
   * [Overview](#overview)
   * [Pre-requisites](#pre-requisites)
   * [Package pipelines](#package-pipelines)
+  * [How to create a custom stack](#how-to-create-a-custom-stack)
   * [Bound Custom Pipelines to Kabanero Stacks](#bound-custom-pipelines-to-kabanero-stacks)
   * [Host packaged-pipelines on Artifactory](#host-pipelines-on-artifactory)
   * [Host packaged-pipelines on Git Manually](#host-pipelines-on-git-manually)
@@ -107,13 +108,154 @@ Asset name: mcm-pipelines/bindings/nodejs-mcm-pl-push-binding.yaml
 Asset name: mcm-pipelines/bindings/nodejs-mcm-pl-pullrequest-binding.yaml
 Asset name: manifest.yaml
 --- Created kabanero-pipelines.tar.gz
-Failed building image
-IMAGE_REGISTRY_PUBLISH=false; Skipping push of docker.io/yellocabins/pipelines-index
-IMAGE_REGISTRY_PUBLISH=false; Skipping push of docker.io/yellocabins/pipelines-index:SNAPSHOT
-IMAGE_REGISTRY_PUBLISH=false; Skipping push of docker.io/yellocabins/pipelines-index
-IMAGE_REGISTRY_PUBLISH=false; Skipping push of docker.io/yellocabins/pipelines-index:SNAPSHOT
 ```
 You will see a new zip file under [ci/assets/](ci/assets/default-kabanero-pipelines)
+
+# How to Create a Custom Stack
+Lets say you decide to create a new Kabanero custom stack because the Kabanero stacks do not meet your requirement needs. What if you have an Angular application and wanted to incoroporate a Kabanero stack across your organization, you can achieve this by creating a Kabanero custom stack. In this section you will be learning how to create a Kabanero custom stack. 
+
+To view the following Kabanero stacks in your `dev.local` repository, run the following command:
+```bash
+> appsody list dev.local
+REPO            ID                              VERSION         TEMPLATES                       DESCRIPTION                                              
+dev.local       java-microprofile               0.2.26          *default                        Eclipse MicroProfile on Open Liberty & OpenJ9 using Maven
+dev.local       java-openliberty                0.2.3           *default                        Open Liberty & OpenJ9 using Maven                        
+dev.local       java-spring-boot2               0.3.27          *default, kotlin                Spring Boot using OpenJ9 and Maven                       
+dev.local       nodejs                          0.3.3           *simple                         Runtime for Node.js applications                         
+dev.local       nodejs-express                  0.2.10          scaffold, *simple               Express web framework for Node.js                        
+```
+
+Now you will be learning on how to create an Angular Typescript stack. Run the following commands to achieve this task. Feel free to make any changes to the `package.json` to include packages for your requirements. 
+
+```bash
+appsody stack create typescript-angular --copy incubator/starter
+cd typescript-angular
+npm install -g @angular/cli@latest 
+cd templates/simple
+ng new angular-starter-project
+cd ../../
+appsody stack package
+````
+Now you can see your new stack on your `dev.local` environment.
+```bash
+> appsody list dev.local
+REPO            ID                              VERSION         TEMPLATES                       DESCRIPTION                                                 
+.
+.
+.                 
+dev.local      typescript-angular               9.1.11           *simple                        Runnable Angular v9 starter stack, copy to create a new     
+                                                                                                stack                                                     
+```
+You have completed making a custom stack that other developers can use!
+
+
+# How to Release your Stacks to Kabanero
+To release your stack to the kabanero namespace, you must deploy the container
+to docker hub or a registry. You can achieve that by running the following commands.
+
+```bash
+> cd Users/YourUserName/.appsody/stacks/dev.local
+> ls 
+typescript-angular.v9.1.11.source.tar.gz
+typescript-angular.v9.1.11.templates.simple.tar.gz
+```
+
+Now replace environment variable with your Docker username.
+
+1. Create a docker image and push it to the registry
+```bash
+export DOCKER_HUB_USERNAME=xxxx
+docker tag dev.local/appsody/typescript-angular $DOCKER_HUB_USERNAME/typescript-angular
+docker login
+docker push $DOCKER_HUB_USERNAME/typescript-angular
+```
+
+2. Create a new release on your Github repository.
+
+    - Click on Releases
+    - Click Draft a new Release
+    - In the Tag Version enter v1.0-typescript-angular
+    - Upload file
+    - Go to Users/YourUserName/.appsody/stacks/dev.local and select typescript-angular.v9.1.11.source.tar.gz and typescript-angular.v9.1.11.templates.simple.tar.gz
+    - Click Publish Release
+    - Right click on typescript-angular.v9.1.11.source.tar.gz and typescript-angular.v9.1.11.templates.simple.tar.gz press "copy link address".
+
+3. Generate index file:
+From the stack directory you created `typescript-angular` run the following commands to generate the index file.
+
+    ```bash
+    > export GITHUB_USERNAME=xxx
+    > export GITHUB_REPOSITORY=xxx
+    > appsody stack add-to-repo $GITHUB_USERNAME --release-url https://github.com/$GITHUB_USERNAME/$GITHUB_REPOSITORY/releases/latest/download
+
+    ******************************************
+    Running appsody stack add-to-repo
+    ******************************************
+    Creating repository index file: /Users/Oscar.Ricaud@ibm.com/.appsody/stacks/dev.local/oiricaud-index.yaml
+    Succesfully generated file: /Users/Oscar.Ricaud@ibm.com/.appsody/stacks/dev.local/oiricaud-index.json
+    Repository index file updated successfully
+    ```
+
+4. Now edit the `index.yaml` file to include the image you created.
+    ```bash
+    > cd /Users/YOUR-COMPUTER-USERNAME/.appsody/stacks/dev.local
+    > vim $GITHUB_USERNAME-index.yaml
+    ```
+    Edit the file and update the `image` key.
+
+    ```yaml
+       templates:
+        - id: simple
+        url: https://github.com/oiricaud/devops-demo-kabanero-pipelines/releases/download/v1.37/typescript-angular.v9.1.11.templates.simple.tar.gz
+        image: docker.io/$DOCKER_USERNAME/typescript-angular
+    ```
+    Go back to the release you just generated edit the release, and now upload the `$GITHUB_USERNAME-index.yaml` file that you just edited.
+
+5. Edit the Kabanero Custom Resource to include your new custom stack.
+
+    ```bash 
+    oc login --token=enter-token --server=enter-server
+    oc project kabanero
+    oc get kabanero -o yaml
+    ```
+    You should get a similar output: 
+
+    ```yaml
+    .
+    .
+    .
+    stacks:
+        pipelines:
+        - https:
+            url: https://github.com/kabanero-io/kabanero-pipelines/releases/download/0.6.2/default-kabanero-pipelines.tar.gz
+        id: default
+        sha256: bfda9cd86f6054e8f58304c283ca571ec80435880a875ae1ade02c8ec24756ea
+        repositories:
+        - https:
+            url: https://github.com/kabanero-io/kabanero-stack-hub/releases/download/0.6.5/kabanero-stack-hub-index.yaml
+        name: central
+    targetNamespaces:
+    ```
+    You will now add the following section to the `https` key.
+    Remember to get the URL value you must go to your releases and copy and paste your `index`
+
+    The `image` key is the image you upload to docker hub.
+
+    ```yaml
+    url: https://github.com/oiricaud/devops-demo-kabanero-pipelines/releases/download/v1.37/oiricaud-index.yaml
+    name: typescript-angular
+    versions:
+    - images:
+        - id: typescript-angular
+        image: docker.io/yellocabins/typescript-angular:latest
+    ```
+
+    Now you can apply your changes by running:
+    `oc apply -f kabanero.json`
+
+    The result should look like the following image.
+    ![alt text](img/stacks.png)
+
 
 # Bound Custom Pipelines to Kabanero Stacks
 It is pretty easy to bound your custom pipelines onto the default kabanero stacks. Kabanero has the following out-of-the-box stacks
@@ -124,20 +266,17 @@ It is pretty easy to bound your custom pipelines onto the default kabanero stack
 - NodeJS
 - Nodejs Express
 
-You can reuse these stacks to bound your custom pipelines. For example, in this repository there are custom pipelines
-that we have created for our requirement needs.
+You can reuse these stacks to bound your custom pipelines. And if you are not familar with what Stacks are you can visit this link for more [info](https://kabanero.io/developer/cli/). Essentially, Kabanero Stacks are container images prebuilt with runtimes and frameworks.For example, in this repository there are custom pipelines that we have created for our requirement needs.
 
-- [mcm-pipeline](pipelines/incubator/mcm-pipelines)
+- [mcm-pipelines](pipelines/incubator/mcm-pipelines)
 - [cloud-foundry](pipelines/experimental/cloud-foundry)
-- [deploy-app-ibm-cloud](pipelines/incubator/experimental/deploy-app-ibm-cloud)
-- [git-package-release-update](pipelines/incubator/experimental/git-package-release-update)
+- [deploy-app-ibm-cloud](pipelines/experimental/deploy-app-ibm-cloud)
+- [git-package-release-update](pipelines/experimental/git-package-release-update)
 - [artifactory-package-release-update](pipelines/incubator/artifactory-package-release-update)
 
 If you wanted to bound let's say, `deploy-app-ibm-cloud` or a custom pipeline that you created to all of the kabanero default stacks as shown above. We can achieve that by following the steps:
 1. Inspect current pipeline, tasks and trigger bindings. We currently have in `deploy-app-ibm-cloud` pipeline
     ```yaml
-    # The responsibility of this pipeline is to deploy an app
-    # such as the storefront application onto Ibm cloud Cloud Foundry.
     apiVersion: tekton.dev/v1alpha1
     kind: Pipeline
     metadata:
@@ -154,8 +293,6 @@ If you wanted to bound let's say, `deploy-app-ibm-cloud` or a custom pipeline th
     You also must add `StackId-` to the name of your pipeline. If the name of your pipeline is `abc-pl` the result is `StackId-abc-pl`. Look at the following for the `deploy-app-ibm-cloud` pipeline example:
     ```yaml
     #Kabanero! on activate substitute StackId for text 'StackId'
-    # The responsibility of this pipeline is to deploy an app
-    # such as the storefront application onto Ibm cloud Cloud Foundry.
     apiVersion: tekton.dev/v1alpha1
     kind: Pipeline
     metadata:
@@ -181,6 +318,7 @@ If you wanted to bound let's say, `deploy-app-ibm-cloud` or a custom pipeline th
     ```
     TriggerBinding for push
     ```yaml
+    #Kabanero! on activate substitute StackId for text 'StackId'
     apiVersion: tekton.dev/v1alpha1
     kind: TriggerBinding
     metadata:
@@ -195,6 +333,7 @@ If you wanted to bound let's say, `deploy-app-ibm-cloud` or a custom pipeline th
 
     TriggerTemplate 
     ```yaml
+    #Kabanero! on activate substitute StackId for text 'StackId'
     apiVersion: tekton.dev/v1alpha1
     kind: TriggerTemplate
     metadata:
