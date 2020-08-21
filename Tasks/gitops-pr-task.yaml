@@ -16,6 +16,22 @@ spec:
       type: git
     - name: image
       type: image
+  stepTemplate:
+    env:
+    - name: GIT_USER_ACCOUNT
+      valueFrom:
+        secretKeyRef:
+          name: git-cred
+          key: username
+          optional: true
+    - name: GITHUB_API_TOKEN
+      valueFrom:
+        secretKeyRef:
+          name: git-cred
+          key: password
+          optional: true
+    name: ""
+    resources: {}
   steps:
   - args:
     - -c
@@ -23,9 +39,7 @@ spec:
       set -e
 
       echo "Cloning the gitops repository"
-
-      GIT_USER_ACCOUNT=hollisc
-      GITHUB_API_TOKEN=360c8389f9b1f18db845f5d750de33c46a3f2a4e
+      echo ${GITHUB_USER_ACCOUNT}
 
       # clone repo
       git init
@@ -50,10 +64,10 @@ spec:
       git add .
       git commit -m "Tekton CI commit"
       git remote rm origin
-      git remote add origin https://${GIT_USER_ACCOUNT}:360c8389f9b1f18db845f5d750de33c46a3f2a4e@github.com/ibm-cloud-architecture/devops-demo-qa-env.git > /dev/null 2>&1
+      git remote add origin https://${GIT_USER_ACCOUNT}:${GITHUB_API_TOKEN}@github.com/ibm-cloud-architecture/devops-demo-qa-env.git > /dev/null 2>&1
       git push origin ci-pipeline
 
-      curl -u hollisc:${GITHUB_API_TOKEN} -d '{"title":"PR to promote $(inputs.resources.image.url) to QA","base":"master", "head":"ibm-cloud-architecture:ci-pipeline"}' https://api.github.com/repos/ibm-cloud-architecture/devops-demo-qa-env/pulls
+      curl -u ${GIT_USER_ACCOUNT}:${GITHUB_API_TOKEN} -d '{"title":"PR to promote $(inputs.resources.image.url) to QA","base":"master", "head":"ibm-cloud-architecture:ci-pipeline"}' https://api.github.com/repos/ibm-cloud-architecture/devops-demo-qa-env/pulls
     command:
     - /bin/bash
     image: $(inputs.params.js-image)
