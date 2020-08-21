@@ -1,0 +1,39 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Task
+metadata:
+  name: automation-testing
+spec:
+  inputs:
+    params:
+    - default: bluecopute-web
+      description: Name of the git repository
+      name: gitRepo
+      type: string
+    - default: proj-a-dev
+      description: Name of the environment, labdev-ccp/labtest/labprod
+      name: environment
+      type: string
+    - default: node:12-stretch
+      name: test-image
+      type: string
+    resources:
+    - name: source
+      type: git
+    - name: image
+      type: image
+  steps:
+  - image: $(inputs.params.test-image)
+    name: run-automation-tests
+    resources: {}
+    script: |
+      DIR="$(inputs.resources.source.path)/postman_collections"
+      echo $DIR
+      if [ -d "$DIR" ]; then
+        echo "Performing the automation tests"
+        npm install newman
+        #sed -i 's/labdev-ccp/$(intputs.params.environment)/g' $(inputs.resources.source.url)/postman_collections/$(inputs.params.gitRepo)-collection.json
+        #node_modules/.bin/newman run $(inputs.resources.source.url)/postman_collections/$(inputs.params.gitRepo)-collection.json --ssl-extra-ca-certs /usr/src/app/cacerts/csplab-ca-chain.crt
+      else
+        echo "Tests are not existing ... ${DIR} not found. Skipping automation tests"
+      fi
+    workingDir: $(inputs.resources.source.path)

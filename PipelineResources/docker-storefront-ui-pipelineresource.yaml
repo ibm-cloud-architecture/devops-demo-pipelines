@@ -1,0 +1,9 @@
+apiVersion: tekton.dev/v1alpha1
+kind: PipelineResource
+metadata:
+  name: docker-storefront-ui
+spec:
+  params:
+  - name: url
+    value: us.icr.io/devops-gse-poc/storefront-ui:1.0
+  type: image
