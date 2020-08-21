@@ -1,1 +1,1 @@
-# Sample Tekton Pipelines and Tasks
+# Sample Tekton Pipelines and Tasks to manage application pipelines
