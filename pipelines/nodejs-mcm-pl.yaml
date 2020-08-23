@@ -102,18 +102,18 @@ spec:
     taskRef:
       kind: Task
       name: gitops-pr
-  # - name: slack-post-qa
-  #   params:
-  #   - name: message
-  #     value: '> storefront-ui in proj-a-qa has a pull reqeust to promote $(inputs.resources.image.url).'
-  #   - name: webhook-secret
-  #     value: slack-webhook-secret
-  #   resources:
-  #     inputs:
-  #     - name: image
-  #       resource: docker-image
-  #   runAfter:
-  #   - gitops-pr
-  #   taskRef:
-  #     kind: Task
-  #     name: send-to-webhook-slack
+  - name: slack-post-qa
+    params:
+    - name: message
+      value: '> storefront-ui in proj-a-qa has a pull reqeust to promote $(inputs.resources.image.url).'
+    - name: webhook-secret
+      value: slack-webhook-secret
+    resources:
+      inputs:
+      - name: image
+        resource: docker-image
+    runAfter:
+    - gitops-pr
+    taskRef:
+      kind: Task
+      name: send-to-webhook-slack
